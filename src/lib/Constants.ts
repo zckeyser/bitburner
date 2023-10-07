@@ -57,6 +57,18 @@ export module Constants {
         }
     };
 
+    export enum PurchasableProgram {
+        BruteSSH   = "BruteSSH.exe",
+        FTPCrack   = "FTPCrack.exe",
+        RelaySMTP  = "relaySMTP.exe",
+        HTTPWorm   = "HTTPWorm.exe",
+        SQLInject  = "SQLInject.exe",
+        DeepScanV1 = "DeepScanV1.exe",
+        DeepScanV2 = "DeepScanV2.exe",
+        AutoLink   = "AutoLink.exe",
+        ServerProfiler = "serverprofiler.exe"
+    }
+
     export enum LogLevel {
         TRACE = "TRACE\t>",
         INFO  = "INFO\t>",
@@ -167,254 +179,6 @@ export module Constants {
         | "Ishima"
         | "Volhaven";
 
-    export enum PurchasableProgram {
-        BruteSSH   = "BruteSSH.exe",
-        FTPCrack   = "FTPCrack.exe",
-        RelaySMTP  = "relaySMTP.exe",
-        HTTPWorm   = "HTTPWorm.exe",
-        SQLInject  = "SQLInject.exe",
-        DeepScanV1 = "DeepScanV1.exe",
-        DeepScanV2 = "DeepScanV2.exe",
-        AutoLink   = "AutoLink.exe",
-    }
-
-    export type CreatableProgram = PurchasableProgram | "serverprofiler.exe";
-
-    export type CompanyName =
-    // Sector-12
-        | "MegaCorp"
-        | "BladeIndustries"
-        | "FourSigma"
-        | "IcarusMicrosystems"
-        | "UniversalEnergy"
-        | "DeltaOne"
-        | "CIA"
-        | "NSA"
-        | "AlphaEnterprises"
-        | "CarmichaelSecurity"
-        | "FoodNStuff"
-        | "JoesGuns"
-
-        // Aevum
-        | "ECorp"
-        | "BachmanAndAssociates"
-        | "ClarkeIncorporated"
-        | "OmniTekIncorporated"
-        | "FulcrumTechnologies"
-        | "GalacticCybersystems"
-        | "AeroCorp"
-        | "WatchdogSecurity"
-        | "RhoConstruction"
-        | "AevumPolice"
-        | "NetLinkTechnologies"
-
-        // Volhaven
-        | "NWO"
-        | "HeliosLabs"
-        | "OmniaCybersystems"
-        | "LexoCorp"
-        | "SysCoreSecurities"
-        | "CompuTek"
-
-        // Chongqing
-        | "KuaiGongInternational"
-        | "SolarisSpaceSystems"
-
-        // Ishima
-        | "StormTechnologies"
-        | "NovaMedical"
-        | "OmegaSoftware"
-
-        // New Tokyo
-        | "DefComm"
-        | "VitaLife"
-        | "GlobalPharmaceuticals"
-        | "NoodleBar";
-
-    export type CompanyField =
-        | "software"
-        | "software consultant"
-        | "it"
-        | "security engineer"
-        | "network engineer"
-        | "business"
-        | "business consultant"
-        | "security"
-        | "agent"
-        | "employee"
-        | "part-time employee"
-        | "waiter"
-        | "part-time waiter";
-
-    export type FactionName =
-        | "Illuminati"
-        | "Daedalus"
-        | "The Covenant"
-        | "ECorp"
-        | "MegaCorp"
-        | "Bachman & Associates"
-        | "Blade Industries"
-        | "NWO"
-        | "Clarke Incorporated"
-        | "OmniTek Incorporated"
-        | "Four Sigma"
-        | "KuaiGong International"
-        | "Fulcrum Secret Technologies"
-        | "BitRunners"
-        | "The Black Hand"
-        | "NiteSec"
-        | "Aevum"
-        | "Chongqing"
-        | "Ishima"
-        | "New Tokyo"
-        | "Sector-12"
-        | "Volhaven"
-        | "Speakers for the Dead"
-        | "The Dark Army"
-        | "The Syndicate"
-        | "Silhouette"
-        | "Tetrads"
-        | "Slum Snakes"
-        | "Netburners"
-        | "Tian Di Hui"
-        | "CyberSec"
-        | "Bladeburners";
-
-    export type GangName =
-        | "Slum Snakes"
-        | "Tetrads"
-        | "The Syndicate"
-        | "The Dark Army"
-        | "Speakers for the Dead"
-        | "NiteSec"
-        | "The Black Hand";
-
-    export type FactionWork =
-        | "hacking"
-        | "field"
-        | "security";
-
-    export type Crime =
-        | "shoplift"
-        | "rob store"
-        | "mug"
-        | "larceny"
-        | "deal drugs"
-        | "bond forgery"
-        | "traffick arms"
-        | "homicide"
-        | "grand theft auto"
-        | "kidnap"
-        | "assassinate"
-        | "heist";
-
-    export type AugmentName =
-        | "Augmented Targeting I"
-        | "Augmented Targeting II"
-        | "Augmented Targeting III"
-        | "Synthetic Heart"
-        | "Synfibril Muscle"
-        | "Combat Rib I"
-        | "Combat Rib II"
-        | "Combat Rib III"
-        | "Nanofiber Weave"
-        | "NEMEAN Subdermal Weave"
-        | "Wired Reflexes"
-        | "Graphene Bone Lacings"
-        | "Bionic Spine"
-        | "Graphene Bionic Spine Upgrade"
-        | "Bionic Legs"
-        | "Graphene Bionic Legs Upgrade"
-        | "Speech Processor Implant"
-        | "TITN-41 Gene-Modification Injection"
-        | "Enhanced Social Interaction Implant"
-        | "BitWire"
-        | "Artificial Bio-neural Network Implant"
-        | "Artificial Synaptic Potentiation"
-        | "Enhanced Myelin Sheathing"
-        | "Synaptic Enhancement Implant"
-        | "Neural-Retention Enhancement"
-        | "DataJack"
-        | "Embedded Netburner Module"
-        | "Embedded Netburner Module Core Implant"
-        | "Embedded Netburner Module Core V2 Upgrade"
-        | "Embedded Netburner Module Core V3 Upgrade"
-        | "Embedded Netburner Module Analyze Engine"
-        | "Embedded Netburner Module Direct Memory Access Upgrade"
-        | "Neuralstimulator"
-        | "Neural Accelerator"
-        | "Cranial Signal Processors - Gen I"
-        | "Cranial Signal Processors - Gen II"
-        | "Cranial Signal Processors - Gen III"
-        | "Cranial Signal Processors - Gen IV"
-        | "Cranial Signal Processors - Gen V"
-        | "Neuronal Densification"
-        | "Nuoptimal Nootropic Injector Implant"
-        | "Speech Enhancement"
-        | "FocusWire"
-        | "PC Direct-Neural Interface"
-        | "PC Direct-Neural Interface Optimization Submodule"
-        | "PC Direct-Neural Interface NeuroNet Injector"
-        | "ADR-V1 Pheromone Gene"
-        | "ADR-V2 Pheromone Gene"
-        | "The Shadow's Simulacrum"
-        | "Hacknet Node CPU Architecture Neural-Upload"
-        | "Hacknet Node Cache Architecture Neural-Upload"
-        | "Hacknet Node NIC Architecture Neural-Upload"
-        | "Hacknet Node Kernel Direct-Neural Interface"
-        | "Hacknet Node Core Direct-Neural Interface"
-        | "NeuroFlux Governor"
-        | "Neurotrainer I"
-        | "Neurotrainer II"
-        | "Neurotrainer III"
-        | "HyperSight Corneal Implant"
-        | "LuminCloaking-V1 Skin Implant"
-        | "LuminCloaking-V2 Skin Implant"
-        | "HemoRecirculator"
-        | "SmartSonar Implant"
-        | "Power Recirculation Core"
-        | "QLink"
-        | "The Red Pill"
-        | "SPTN-97 Gene Modification"
-        | "ECorp HVMind Implant"
-        | "CordiARC Fusion Reactor"
-        | "SmartJaw"
-        | "Neotra"
-        | "Xanipher"
-        | "nextSENS Gene Modification"
-        | "OmniTek InfoLoad"
-        | "Photosynthetic Cells"
-        | "BitRunners Neurolink"
-        | "The Black Hand"
-        | "CRTX42-AA Gene Modification"
-        | "Neuregen Gene Modification"
-        | "CashRoot Starter Kit"
-        | "NutriGen Implant"
-        | "INFRARET Enhancement"
-        | "DermaForce Particle Barrier"
-        | "Graphene BranchiBlades Upgrade"
-        | "Graphene Bionic Arms Upgrade"
-        | "BrachiBlades"
-        | "Bionic Arms"
-        | "Social Negotiation Assistant (S.N.A)"
-        | "EsperTech Bladeburner Eyewear"
-        | "EMS-4 Recombination"
-        | "ORION-MKIV Shoulder"
-        | "Hyperion Plasma Cannon V1"
-        | "Hyperion Plasma Cannon V2"
-        | "GOLEM Serum"
-        | "Vangelis Virus"
-        | "Vangelis Virus 3.0"
-        | "I.N.T.E.R.L.I.N.K.E.D"
-        | "Blade's Runners"
-        | "BLADE-51b Tesla Armor"
-        | "BLADE-51b Tesla Armor: Power Cells Upgrade"
-        | "BLADE-51b Tesla Armor: Energy Shielding Upgrade"
-        | "BLADE-51b Tesla Armor: Unibeam Upgrade"
-        | "BLADE-51b Tesla Armor: Omnibeam Upgrade"
-        | "BLADE-51b Tesla Armor: IPU Upgrade"
-        | "The Blade's Simulacrum";
-
     export const Colors = {
         black: "\u001b[30m",
         red: "\u001b[31m",
@@ -435,3 +199,240 @@ export module Constants {
         default: "\u001b[0m"
     };
 }
+
+export enum CompanyName {
+    // Sector-12
+    MegaCorp = "MegaCorp",
+    BladeIndustries = "BladeIndustries",
+    FourSigma = "FourSigma",
+    IcarusMicrosystems = "IcarusMicroSystems",
+    UniversalEnergy = "UniversalEnergy",
+    DeltaOne = "DeltaOne",
+    CIA = "CIA",
+    NSA = "NSA",
+    AlphaEnterprises = "AlphaEnterprises",
+    CarmichaelSecurity = "CarmichaelSecurity",
+    FoodNStuff = "FoodNStuff",
+    JoesGuns = "JoesGuns",
+
+    // Aevum
+    ECorp = "ECorp",
+    BachmanAndAssociates = "BachmanAndAssociates",
+    ClarkeIncorporated = "ClarkeIncorporated",
+    OmniTekIncorporated = "OmniTekIncorporated",
+    FulcrumTechnologies = "FulcrumTechnologies",
+    GalacticCybersystems = "GalacticCybersystems",
+    AeroCorp = "AeroCorp",
+    WatchdogSecurity = "WatchdogSecurity",
+    RhoConstruction = "RhoConstruction",
+    AevumPolice = "AevumPolice",
+    NetLinkTechnologies = "NetLinkTechnologies",
+
+    // Volhaven
+    NWO = "NWO",
+    HeliosLabs = "HeliosLabs",
+    OmniaCybersystems = "OmniaCybersystems",
+    LexoCorp = "LexoCorp",
+    SysCoreSecurities = "SysCoreSecurities",
+    CompuTek = "CompuTek",
+
+    // Chongqing
+    KuaiGongInternational = "KuaiGongInternational",
+    SolarisSpaceSystems = "SolarisSpaceSystems",
+
+    // Ishima
+    StormTechnologies = "StormTechnologies",
+    NovaMedical = "NovaMedical",
+    OmegaSoftware = "OmegaSoftware",
+
+    // New Tokyo
+    DefComm = "DefComm",
+    VitaLife = "VitaLife",
+    GlobalPharmaceuticals = "GlobalPharmaceuticals",
+    NoodleBar = "NoodleBar"
+}
+
+
+export type CompanyField =
+    | "software"
+    | "software consultant"
+    | "it"
+    | "security engineer"
+    | "network engineer"
+    | "business"
+    | "business consultant"
+    | "security"
+    | "agent"
+    | "employee"
+    | "part-time employee"
+    | "waiter"
+    | "part-time waiter";
+
+export type FactionName =
+    | "Illuminati"
+    | "Daedalus"
+    | "The Covenant"
+    | "ECorp"
+    | "MegaCorp"
+    | "Bachman & Associates"
+    | "Blade Industries"
+    | "NWO"
+    | "Clarke Incorporated"
+    | "OmniTek Incorporated"
+    | "Four Sigma"
+    | "KuaiGong International"
+    | "Fulcrum Secret Technologies"
+    | "BitRunners"
+    | "The Black Hand"
+    | "NiteSec"
+    | "Aevum"
+    | "Chongqing"
+    | "Ishima"
+    | "New Tokyo"
+    | "Sector-12"
+    | "Volhaven"
+    | "Speakers for the Dead"
+    | "The Dark Army"
+    | "The Syndicate"
+    | "Silhouette"
+    | "Tetrads"
+    | "Slum Snakes"
+    | "Netburners"
+    | "Tian Di Hui"
+    | "CyberSec"
+    | "Bladeburners";
+
+export type GangName =
+    | "Slum Snakes"
+    | "Tetrads"
+    | "The Syndicate"
+    | "The Dark Army"
+    | "Speakers for the Dead"
+    | "NiteSec"
+    | "The Black Hand";
+
+export type FactionWork =
+    | "hacking"
+    | "field"
+    | "security";
+
+export type Crime =
+    | "shoplift"
+    | "rob store"
+    | "mug"
+    | "larceny"
+    | "deal drugs"
+    | "bond forgery"
+    | "traffick arms"
+    | "homicide"
+    | "grand theft auto"
+    | "kidnap"
+    | "assassinate"
+    | "heist";
+
+export type AugmentName =
+    | "Augmented Targeting I"
+    | "Augmented Targeting II"
+    | "Augmented Targeting III"
+    | "Synthetic Heart"
+    | "Synfibril Muscle"
+    | "Combat Rib I"
+    | "Combat Rib II"
+    | "Combat Rib III"
+    | "Nanofiber Weave"
+    | "NEMEAN Subdermal Weave"
+    | "Wired Reflexes"
+    | "Graphene Bone Lacings"
+    | "Bionic Spine"
+    | "Graphene Bionic Spine Upgrade"
+    | "Bionic Legs"
+    | "Graphene Bionic Legs Upgrade"
+    | "Speech Processor Implant"
+    | "TITN-41 Gene-Modification Injection"
+    | "Enhanced Social Interaction Implant"
+    | "BitWire"
+    | "Artificial Bio-neural Network Implant"
+    | "Artificial Synaptic Potentiation"
+    | "Enhanced Myelin Sheathing"
+    | "Synaptic Enhancement Implant"
+    | "Neural-Retention Enhancement"
+    | "DataJack"
+    | "Embedded Netburner Module"
+    | "Embedded Netburner Module Core Implant"
+    | "Embedded Netburner Module Core V2 Upgrade"
+    | "Embedded Netburner Module Core V3 Upgrade"
+    | "Embedded Netburner Module Analyze Engine"
+    | "Embedded Netburner Module Direct Memory Access Upgrade"
+    | "Neuralstimulator"
+    | "Neural Accelerator"
+    | "Cranial Signal Processors - Gen I"
+    | "Cranial Signal Processors - Gen II"
+    | "Cranial Signal Processors - Gen III"
+    | "Cranial Signal Processors - Gen IV"
+    | "Cranial Signal Processors - Gen V"
+    | "Neuronal Densification"
+    | "Nuoptimal Nootropic Injector Implant"
+    | "Speech Enhancement"
+    | "FocusWire"
+    | "PC Direct-Neural Interface"
+    | "PC Direct-Neural Interface Optimization Submodule"
+    | "PC Direct-Neural Interface NeuroNet Injector"
+    | "ADR-V1 Pheromone Gene"
+    | "ADR-V2 Pheromone Gene"
+    | "The Shadow's Simulacrum"
+    | "Hacknet Node CPU Architecture Neural-Upload"
+    | "Hacknet Node Cache Architecture Neural-Upload"
+    | "Hacknet Node NIC Architecture Neural-Upload"
+    | "Hacknet Node Kernel Direct-Neural Interface"
+    | "Hacknet Node Core Direct-Neural Interface"
+    | "NeuroFlux Governor"
+    | "Neurotrainer I"
+    | "Neurotrainer II"
+    | "Neurotrainer III"
+    | "HyperSight Corneal Implant"
+    | "LuminCloaking-V1 Skin Implant"
+    | "LuminCloaking-V2 Skin Implant"
+    | "HemoRecirculator"
+    | "SmartSonar Implant"
+    | "Power Recirculation Core"
+    | "QLink"
+    | "The Red Pill"
+    | "SPTN-97 Gene Modification"
+    | "ECorp HVMind Implant"
+    | "CordiARC Fusion Reactor"
+    | "SmartJaw"
+    | "Neotra"
+    | "Xanipher"
+    | "nextSENS Gene Modification"
+    | "OmniTek InfoLoad"
+    | "Photosynthetic Cells"
+    | "BitRunners Neurolink"
+    | "The Black Hand"
+    | "CRTX42-AA Gene Modification"
+    | "Neuregen Gene Modification"
+    | "CashRoot Starter Kit"
+    | "NutriGen Implant"
+    | "INFRARET Enhancement"
+    | "DermaForce Particle Barrier"
+    | "Graphene BranchiBlades Upgrade"
+    | "Graphene Bionic Arms Upgrade"
+    | "BrachiBlades"
+    | "Bionic Arms"
+    | "Social Negotiation Assistant (S.N.A)"
+    | "EsperTech Bladeburner Eyewear"
+    | "EMS-4 Recombination"
+    | "ORION-MKIV Shoulder"
+    | "Hyperion Plasma Cannon V1"
+    | "Hyperion Plasma Cannon V2"
+    | "GOLEM Serum"
+    | "Vangelis Virus"
+    | "Vangelis Virus 3.0"
+    | "I.N.T.E.R.L.I.N.K.E.D"
+    | "Blade's Runners"
+    | "BLADE-51b Tesla Armor"
+    | "BLADE-51b Tesla Armor: Power Cells Upgrade"
+    | "BLADE-51b Tesla Armor: Energy Shielding Upgrade"
+    | "BLADE-51b Tesla Armor: Unibeam Upgrade"
+    | "BLADE-51b Tesla Armor: Omnibeam Upgrade"
+    | "BLADE-51b Tesla Armor: IPU Upgrade"
+    | "The Blade's Simulacrum";

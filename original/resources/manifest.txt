@@ -1,0 +1,5 @@
+./bin/sayHelloTs.js
+./bin/utils/initRepo.js
+./bin/utils/pullFiles.js
+./lib/Constants.js
+./lib/Helpers.js

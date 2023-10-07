@@ -198,3 +198,5 @@ dist
 .pnp.*
 
 .avscode/settings.json
+
+bitburner-src
