@@ -6,6 +6,7 @@ import {
   CrimeOppCostStats,
   getCrimeOpportunityCostStats
 } from "lib/crime/crime-stats"
+import { TermLogger } from "/lib/Helpers";
 
 const Crimes = [
   "Shoplift",
@@ -24,12 +25,25 @@ const Crimes = [
 
 /** @param ns BitBurner API */
 export async function main(ns: NS) {
-  let optimizeFor = String(ns.args.length > 0 ? ns.args[0] : "moneyPerSecond");
-  let optimalCrime = getOptimalCrime(ns, optimizeFor);
+  let scriptFlags = ns.flags([["optimize", "moneyPerInterval"], ["interval", 180]])
+  let optimizeFor = String(scriptFlags.optimize);
+  let interval = Number(scriptFlags.interval);
+  startOptimalCrime(ns, optimizeFor, interval, true);
+}
+
+
+export function startOptimalCrime(ns: NS, optimizeFor: string="moneyPerInterval", interval: number=180, logToTerm=false) {
+  let logger = new TermLogger(ns);
+  
+  let optimalCrime = getOptimalCrime(ns, optimizeFor, interval);
   let notif = `The crime which has been found to be the 
             most efficient for ${optimizeFor} right now is ${optimalCrime.crimeName}.
             The hacking stats for that crime are: ${JSON.stringify(optimalCrime, null, 4)}`;
-  ns.print(notif);
+  if(logToTerm) {
+    logger.info(notif);
+  } else {
+    ns.print(notif);
+  }
   ns.toast(`Starting to commit crime ${optimalCrime.crimeName} for \$${optimalCrime.moneyPerSecond.toLocaleString(undefined, {maximumFractionDigits: 2})}/sec`);
   ns.singularity.commitCrime(optimalCrime.crimeName, false);
 }
@@ -38,14 +52,13 @@ export async function main(ns: NS) {
  * Gets the crime with the highest value for a given field to optimize for, defaulting to expected money per second
  * 
  * @param ns BitBurner API
- * @param optimizeFor Pseudo JSONPath that only supports `.` operators, e.g. expPerSecond.hacking
- * @return 
+ * @param optimizeFor the field of CrimOppCostStats to optimize for when prioritizing jobs. Formatted as pseudo-JSONPath that only supports `.` operators, e.g. expPerSecond.hacking
+ * @param interval interval of time in which the crime should run. good for avoiding large, low-prob, huge-reward jobs like heists.
+ * @return stats + name of the optimal crime, optimized according to the given parameters
  */
-export function getOptimalCrime(ns: NS, optimizeFor: string="moneyPerSecond"): CrimeOppCostStats {
+export function getOptimalCrime(ns: NS, optimizeFor: string, interval: number=180): CrimeOppCostStats {
   let optimizeForExpanded = optimizeFor.split(".");
-
-  let getCrimeOppCostStats = partial(getCrimeOpportunityCostStats, ns);
-
+  let getCrimeOppCostStats = partial(getCrimeOpportunityCostStats, ns, interval);
   let crimeStats = Crimes.map(getCrimeOppCostStats);
 
   crimeStats.sort((a, b) => {

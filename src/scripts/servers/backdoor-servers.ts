@@ -1,44 +1,20 @@
-/**
- * @param {NS} ns
- * @return {number}
- */
-function getHackablePorts(ns) {
-  if (!ns) {
-    throw new Error(`getHackablePorts missing ns argument, got ${ns}`)
-  }
-
-  let hackablePorts = 0;
-  if (ns.fileExists("BruteSSH.exe", "home")) {
-    hackablePorts++;
-  }
-  if (ns.fileExists("FTPCrack.exe", "home")) {
-    hackablePorts++;
-  }
-  if (ns.fileExists("relaySMTP.exe", "home")) {
-    hackablePorts++;
-  }
-  if (ns.fileExists("HTTPWorm.exe", "home")) {
-    hackablePorts++;
-  }
-  if (ns.fileExists("SQLInject.exe", "home")) {
-    hackablePorts++;
-  }
-  return hackablePorts
-}
+import { NS } from "Bitburner";
+import { BasicSecurity } from "/lib/Helpers";
+import { scanNetwork } from "/lib/servers/scan-servers";
 
 /** @param {NS} ns */
 export async function main(ns) {
-  const servers = ns.read("serverList.txt").split("|");
+  const servers = scanNetwork(ns)[0];
 
-  let serversRooted = [];
-  let serversBackdoored = [];
+  let serversRooted: string[] = [];
+  let serversBackdoored: string[] = [];
 
   while(serversRooted.length < servers.length) {
     servers.forEach((serverHostname) => {
       let server = ns.getServer(serverHostname)
 
       const currentHackLevel = ns.getHackingLevel();
-      const portsHackable = getHackablePorts(ns);
+      const portsHackable = BasicSecurity.maxSecurityLevel(ns);
       const isHackable = server.requiredHackingSkill <= currentHackLevel && server.numOpenPortsRequired <= portsHackable;
       if(!isHackable) {
         ns.print(`Skipping backdoor on ${serverHostname} because the server is not hackable.
@@ -69,5 +45,4 @@ export async function main(ns) {
     // wait 10 minutes then try again
     await ns.sleep(1000 * 60 * 10);
   }
-  
 }

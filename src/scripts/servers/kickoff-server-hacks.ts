@@ -1,7 +1,10 @@
-/* script to run a given script on all purchased servers with the given arguments */
+import { NS } from "Bitburner";
 
-/** @param {NS} ns */
-export async function main(ns) {
+/**
+ * Kick off batchers on all purchased servers 
+ * @param ns
+ */
+export async function main(ns: NS) {
   let availableServers = ns.getPurchasedServers();
 
   availableServers.forEach((serverName) => {

@@ -1,13 +1,16 @@
-/** @param {NS} ns */
-export async function main(ns) {
+import { NS } from 'Bitburner'
+
+/** @param ns */
+export async function main(ns: NS) {
   let serverRam = 2048;
   let serverCost = 10;
 
   for(;; serverRam++) {
     let newCost = await ns.getPurchasedServerCost(serverRam);
-    if(!newCost || newCost == NaN || newCost == Infinity) {
+    if(!newCost || Number.isNaN(newCost) || newCost == Infinity) {
       break;
     }
+    serverCost = newCost;
     await ns.sleep(100);
   }
 

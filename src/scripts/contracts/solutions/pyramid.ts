@@ -1,3 +1,5 @@
+import { NS } from "Bitburner";
+
 const Input = [
             [3],
            [9,1],
@@ -13,24 +15,19 @@ const Input = [
 ]
 
 
-/** @param {NS} ns */
-export async function main(ns) {
+/** @param ns */
+export async function main(ns: NS) {
   let pathLen = shortestPath(Input, 0, 0);
 
   ns.toast(`The shortest path through the pyramid is ${pathLen}`);
 }
 
 /**
- * @typedef {Object} TreeNode
- * @property {TreeNode[]} children
+ * @param pyramid pyramid to calculate off of 
+ * @param row of pyramid to calculate path from
+ * @param column of pyramid to calculate path from
  */
-
-/**
- * @param {number[][]} pyramid pyramid to calculate off of 
- * @param {number} row of pyramid to calculate path from
- * @param {number} column of pyramid to calculate path from
- */
-export function shortestPath(pyramid, row, col) {
+export function shortestPath(pyramid: number[][], row: number, col: number): number {
   // we hit the end of the pyramid, just return the current value
   if(row == pyramid.length - 1) {
     return pyramid[row][col];

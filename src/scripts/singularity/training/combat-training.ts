@@ -38,10 +38,10 @@ export async function main(ns: NS) {
     }
 
     // each cycle, earn some money back with crime
-    let optimalCrime = getOptimalCrime(ns);
+    const interval = 120;
+    const optimalCrime = getOptimalCrime(ns, "moneyPerInterval", interval);
     let timeToWorkOffGymCost = (gymCostPerCycle / optimalCrime.moneyPerSecond) * earningsRatio * 1000;
-    // make sure we leave at least enough time to gain money once
-    timeToWorkOffGymCost = Math.max(optimalCrime.intervalBetweenSuccess, timeToWorkOffGymCost);
+    timeToWorkOffGymCost = Math.max(interval, timeToWorkOffGymCost);
     ns.singularity.commitCrime(optimalCrime.crimeName, focus);
     ns.print(`Doing crime ${optimalCrime.crimeName} for ${timeToWorkOffGymCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}`)
     // work at the crime for as long as we expect to need to to pay off the cost of the gym 

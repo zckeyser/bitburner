@@ -1,7 +1,9 @@
-/** @param {NS} ns */
-export async function main(ns) {
+import { NS } from "Bitburner";
+
+/** @param ns */
+export async function main(ns: NS) {
   // take target ram as argument
-  const ram = parseInt(ns.args[0]);
+  const ram = Number(ns.args[0]);
 
   let existingServers = ns.getPurchasedServers();
 
@@ -21,4 +23,4 @@ export async function main(ns) {
       await ns.sleep(3000);
     }
   });
-}/** @param {NS} ns */
+}

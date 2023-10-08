@@ -1,5 +1,7 @@
-/** @param {NS} ns */
-export async function main(ns) {
+import { NS } from 'Bitburner'
+
+/** @param ns */
+export async function main(ns: NS) {
   let ramAmounts = [64, 128, 256, 512, 1024, 2048, 3000];
   let outputString = `ramAmount|serverCost|serversAffordable\n`;
 

@@ -1,4 +1,4 @@
-import {NS, Server, Player} from "./index"
+import {NS, Server, Player} from "Bitburner"
 
 /**
  * Constants taken from https://github.com/danielyxie/bitburner/blob/2a13db39c769c601956b4bcef5e2a2f40514bcbd/src/Constants.ts

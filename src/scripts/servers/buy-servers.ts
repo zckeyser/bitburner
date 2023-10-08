@@ -1,7 +1,9 @@
-/** @param {NS} ns */
-export async function main(ns) {
+import { NS } from "Bitburner";
+
+/** @param ns */
+export async function main(ns: NS) {
   // take target ram as argument
-  const ram = parseInt(ns.args[0]);
+  const ram = Number(ns.args[0]);
 
   ns.print(`Server cost: \$${ns.getPurchasedServerCost(ram)}`);
 

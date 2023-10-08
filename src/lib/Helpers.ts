@@ -29,6 +29,7 @@ const DownloadFiles = {
 };
 
 const BasicSecurity = {
+    /** Gets the maximum number of ports currently hackable based on available programs */
     maxSecurityLevel(ns: NS): number {
         return (
             +ns.fileExists(
