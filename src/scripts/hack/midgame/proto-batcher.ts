@@ -1,9 +1,9 @@
 import { NS } from "Bitburner";
-import { TermLogger } from "/lib/Helpers"
+import { TermLogger } from "/lib/Helpers";
 import { getGrowthThreads, getGrowthPercent } from 'lib/growth.js';
-import { getHackablePorts } from 'lib/ports.js'
+import { getHackablePorts } from 'lib/ports.js';
 
-const ActionScriptsDirectory = "scripts/hack/actions/"
+const ActionScriptsDirectory = "scripts/hack/actions/";
 
 
 /** @param ns */
@@ -20,10 +20,10 @@ export async function main(ns: NS) {
   let isHackable = false;
   let ramCap = ns.getServerMaxRam(currentHost);
 
-  if (currentHost === "home" && ramCap > 256) {
+  if (currentHost === "home" && ramCap >= 128) {
     // save a bit of home ram so we can run spare scripts
     // but only if we have ram to spare
-    ramCap -= 30;
+    ramCap -= 15;
   }
 
   while (true) {

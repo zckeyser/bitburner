@@ -43,7 +43,7 @@ export async function main(ns: NS) {
     let timeToWorkOffGymCost = (gymCostPerCycle / optimalCrime.moneyPerSecond) * earningsRatio * 1000;
     timeToWorkOffGymCost = Math.max(interval, timeToWorkOffGymCost);
     ns.singularity.commitCrime(optimalCrime.crimeName, focus);
-    ns.print(`Doing crime ${optimalCrime.crimeName} for ${timeToWorkOffGymCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}`)
+    ns.print(`Doing crime ${optimalCrime.crimeName} for ${timeToWorkOffGymCost.toLocaleString(undefined, { maximumFractionDigits: 2 })} to earn \$${(optimalCrime.moneyPerSecond * timeToWorkOffGymCost).toLocaleString(undefined, {maximumFractionDigits: 2})}`)
     // work at the crime for as long as we expect to need to to pay off the cost of the gym 
     await ns.sleep(timeToWorkOffGymCost);
   }

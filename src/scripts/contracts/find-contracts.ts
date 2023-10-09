@@ -3,7 +3,7 @@ import {NS} from "Bitburner";
 /** @param ns **/
 export async function main(ns: NS) {
     let serversFound = scanNetworkForHackingContracts(ns);
-    ns.alert("Contracts are available on: " + JSON.stringify(serversFound));
+    ns.tprint("Contracts are available on: " + JSON.stringify(serversFound));
     ns.write("data/contracts.js", `${JSON.stringify(serversFound)};`);
 }
 

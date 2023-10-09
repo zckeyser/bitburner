@@ -20,7 +20,7 @@ export async function main(ns: NS) {
     const focus = Boolean(scriptFlags.focus);
     const repGoal = Number(scriptFlags.repGoal)
 
-    workFactionAndCrime(ns, faction, repGoal, factionToCrimeRatio, focus);
+    await workFactionAndCrime(ns, faction, repGoal, factionToCrimeRatio, focus);
 }
 
 /**
@@ -37,6 +37,7 @@ export async function workFactionAndCrime(ns: NS, faction: string, repGoal: numb
         if(currentRep > repGoal) {
             ns.toast(`Rep goal of ${repGoal} with faction ${faction} has been reached. Starting crime and exiting.`);
             startOptimalCrime(ns, "moneyPerInterval");
+            return;
         }
 
         workForFaction(ns, faction, focus);
@@ -49,6 +50,7 @@ export async function workFactionAndCrime(ns: NS, faction: string, repGoal: numb
             await ns.sleep(10000);
             currentRep = ns.singularity.getFactionRep(faction);
         }
+        ns.print(`Starting moneymaking activities after earning ${FactionRepBatchSize} rep with ${faction}, for a total of ${currentRep} rep`);
         
         const factionGrowTime = Date.now() - batchStartTime;
         const timeToMakeMoney = factionGrowTime / factionToCrimeRatio;
@@ -68,9 +70,9 @@ export function workForFaction(ns: NS, faction: string, focus: boolean=false) {
     let factionSkills = getFactionJobSkills(ns);
     for(let i = 0; i < factionSkills.length; i++) {
         let factionJob = factionSkills[i].workType as FactionWorkType;
-        try {
-            ns.singularity.workForFaction(faction, factionJob, focus);
-        } catch {
+        let isWorking = ns.singularity.workForFaction(faction, factionJob, focus);
+        if(!isWorking) {
+            // this job isn't available for this faction, try the next
             continue;
         }
         ns.print(`Working at faction ${faction} with work ${factionJob}`);
