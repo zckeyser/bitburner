@@ -1,7 +1,18 @@
 import { NS } from "Bitburner";
 
+const InputFile = "/data/input.txt";
+
 export async function main(ns: NS) {
-    let input = String(ns.args[0]).split(",").map(Number);
+    let inputArg = ns.args[0];
+    let input: number[] = [];
+    if(inputArg) {
+        input = String(inputArg).split(",").map(Number);
+    } else {
+        ns.tprint(`Reading input from ${InputFile}`);
+        input = JSON.parse(ns.read(InputFile));
+    }
+
+    ns.tprint(`Finding largest contiguous subarray in: ${input}`);
 
     let sum = findLargestContiguousSubarraySum(ns, input);
 
