@@ -20,7 +20,7 @@ export async function main(ns: NS) {
     const focus = Boolean(scriptFlags.focus);
     const repGoal = Number(scriptFlags.repGoal)
 
-    await workFactionAndCrime(ns, faction, repGoal, factionToCrimeRatio, focus);
+    await workFactionAndCrime(ns, faction, repGoal, focus);
 }
 
 /**
@@ -53,7 +53,7 @@ export async function workFactionAndCrime(ns: NS, faction: string, repGoal: numb
         ns.print(`Starting moneymaking activities after earning ${FactionRepBatchSize} rep with ${faction}, for a total of ${currentRep} rep`);
         
         const factionGrowTime = Date.now() - batchStartTime;
-        const timeToMakeMoney = factionGrowTime / factionToCrimeRatio;
+        const timeToMakeMoney = factionGrowTime;
         startOptimalCrime(ns, "moneyPerInterval", Math.floor(timeToMakeMoney / 1000));
         
         await ns.sleep(timeToMakeMoney);

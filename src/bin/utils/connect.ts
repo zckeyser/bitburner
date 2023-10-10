@@ -1,6 +1,12 @@
-import { NS } from "Bitburner";
+import { NS, AutocompleteData } from "Bitburner";
 import { TermLogger } from "/lib/Helpers";
 import { scanNetwork } from "/lib/servers/scan-servers";
+
+
+export function autocomplete(data: AutocompleteData, args: any): string[] {
+  return data.servers;
+}
+
 
 export async function main(ns: NS) {
     let logger = new TermLogger(ns);

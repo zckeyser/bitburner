@@ -18,7 +18,7 @@ export async function main(ns: NS) {
   const focus = Boolean(scriptFlags.focus);
   const earningsRatio = Number(scriptFlags.earningsRatio);
 
-  train(ns, gymToUse, statThreshold, earningsRatio, focus);
+  await train(ns, gymToUse, statThreshold, earningsRatio, focus);
 }
 
 /**
@@ -55,8 +55,9 @@ export async function train(ns: NS, gymToUse: string, statThreshold: number, ear
     const optimalCrime = getOptimalCrime(ns, "moneyPerInterval", interval);
     let timeToWorkOffGymCost = (gymCostPerCycle / optimalCrime.moneyPerSecond) * earningsRatio * 1000;
     timeToWorkOffGymCost = Math.max(interval, timeToWorkOffGymCost);
+    let secondsToWorkOffGymCost = timeToWorkOffGymCost / 1000;
     ns.singularity.commitCrime(optimalCrime.crimeName, focus);
-    ns.print(`Doing crime ${optimalCrime.crimeName} for ${timeToWorkOffGymCost.toLocaleString(undefined, { maximumFractionDigits: 2 })} to earn \$${(optimalCrime.moneyPerSecond * timeToWorkOffGymCost).toLocaleString(undefined, {maximumFractionDigits: 2})}`)
+    ns.print(`Doing crime ${optimalCrime.crimeName} for ${secondsToWorkOffGymCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}s to earn \$${(optimalCrime.moneyPerSecond * secondsToWorkOffGymCost).toLocaleString(undefined, {maximumFractionDigits: 2})}`)
     // work at the crime for as long as we expect to need to to pay off the cost of the gym 
     await ns.sleep(timeToWorkOffGymCost);
   }
