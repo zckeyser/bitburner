@@ -30,7 +30,7 @@ export async function main(ns: NS) {
  * @param repGoal the rep that we'll stop 
  * @param factionToCrimeRatio the ratio of time spent growing faction rep vs committing crimes to make money. numbers >1 mean more time spent growing faction rep, and numbers between 0-1 mean more time spent committing crimes
  */
-export async function workFactionAndCrime(ns: NS, faction: string, repGoal: number, factionToCrimeRatio: number=1.5, focus: boolean) {
+export async function workFactionAndCrime(ns: NS, faction: string, repGoal: number, focus: boolean) {
     while(true) {
         let currentRep = ns.singularity.getFactionRep(faction);
         

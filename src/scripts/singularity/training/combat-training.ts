@@ -17,6 +17,19 @@ export async function main(ns: NS) {
   const statThreshold = Number(scriptFlags.statThreshold);
   const focus = Boolean(scriptFlags.focus);
   const earningsRatio = Number(scriptFlags.earningsRatio);
+
+  train(ns, gymToUse, statThreshold, earningsRatio, focus);
+}
+
+/**
+ * 
+ * @param ns 
+ * @param gymToUse 
+ * @param statThreshold 
+ * @param earningsRatio 
+ * @param focus 
+ */
+export async function train(ns: NS, gymToUse: string, statThreshold: number, earningsRatio: number=1, focus: boolean=false) {
   const gymCostPerCycle = GymCosts[gymToUse] * SecondsPerStat * CombatStats.length;
 
   while (true) {
