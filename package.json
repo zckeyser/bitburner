@@ -3,6 +3,7 @@
     "build": "npm-run-all clean buildTs buildManifest",
     "buildTs": "tsc -p tsconfig.json",
     "buildManifest": "node bin/generateManifest.js",
+    "pushFiles": "python bin/push_files.py",
     "clean": "rimraf build",
     "re": "npm-run-all clean buildTs buildManifest",
     "webserver": "node bin/webserver.js -p 9182 -d build --enable_cors"

@@ -200,3 +200,5 @@ dist
 .avscode/settings.json
 
 bitburner-src
+bitburner_auth_token.txt
+.venv
