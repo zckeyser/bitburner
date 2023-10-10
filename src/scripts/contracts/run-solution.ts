@@ -4,7 +4,11 @@ export async function main(ns: NS) {
     let solutionScript = String(ns.args[0]);
     let args = ns.args.slice(1);
 
-    ns.run(`/scripts/contracts/solutions/${solutionScript}`, {threads: 1}, ...args);
+    let ran = ns.run(`/scripts/contracts/solutions/${solutionScript}`, {threads: 1}, ...args);
+
+    if(!ran) {
+        throw Error("Failed to start script");
+    }
 }
 
 // TODO: figure out why this doesn't work
