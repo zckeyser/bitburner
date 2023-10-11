@@ -1,11 +1,49 @@
+import { NS } from "Bitburner";
+
+export async function main(ns: NS) {
+    let input = String(ns.args[0]);
+    ns.tprint(sanitizeParentheses(input));
+}
+
 export function sanitizeParentheses(s: string): string[] {
-    let stack = [];
-    let newString = "";
+    let left = 0;
+    let right = 0;
+    const res: string[] = [];
 
-    // first pass to determine how many invalid parens there are
+    for (let i = 0; i < s.length; ++i) {
+        if (s[i] === '(') {
+            ++left;
+        } else if (s[i] === ')') {
+            (left > 0) ? --left : ++right;
+        }
+    }
 
+    function dfs(pair, index, left, right, s, solution, res) {
+        if (s.length === index) {
+            if (left === 0 && right === 0 && pair === 0) {
+                for(let i = 0; i < res.length; i++) {
+                    if(res[i] === solution) { return; }
+                }
+                res.push(solution);
+            }
+            return;
+        }
 
-    return []
+        if (s[index] === '(') {
+            if (left > 0) {
+                dfs(pair, index + 1, left - 1, right, s, solution, res);
+            }
+            dfs(pair + 1, index + 1, left, right, s, solution + s[index], res);
+        } else if (s[index] === ')') {
+            if (right > 0) dfs(pair, index + 1, left, right - 1, s, solution, res);
+            if (pair > 0) dfs(pair - 1, index + 1, left, right, s, solution + s[index], res);
+        } else {
+            dfs(pair, index + 1, left, right, s, solution + s[index], res);
+        }
+    }
+
+    dfs(0, 0, left, right, s, "", res);
+    return res;
 }
 
 /**

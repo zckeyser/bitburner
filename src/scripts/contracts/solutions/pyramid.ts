@@ -1,24 +1,22 @@
 import { NS } from "Bitburner";
 
+const InputFile = "/data/input.txt";
+
 const Input = [
-[6],
-[8,2],
-[9,1,2],
-[6,8,3,7],
-[1,5,7,2,4],
-[2,3,7,3,5,2],
-[8,4,6,9,4,6,5],
-[7,4,2,4,3,9,5,8],
-[8,5,8,5,2,9,6,6,3],
-[7,7,3,2,6,2,7,1,5,3]
+  [3],
+ [8,3],
+[5,6,7],
+[3,4,2,7]
 ]
 
 
 /** @param ns */
 export async function main(ns: NS) {
-  let pathLen = shortestPath(Input, 0, 0);
+  let input: number[][] = JSON.parse(ns.read(InputFile));
+  
+  let pathLen = shortestPath(input, 0, 0);
 
-  ns.toast(`The shortest path through the pyramid is ${pathLen}`);
+  ns.tprint(`The shortest path through the pyramid is ${pathLen}`);
 }
 
 /**
