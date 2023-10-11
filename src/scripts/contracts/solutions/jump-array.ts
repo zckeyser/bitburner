@@ -30,8 +30,8 @@ export function jumpArray(ns: NS, arr: number[]): number {
         jumps++;
     }
 
-    // todo: is this actually right or just for the test case done previously?
-    return jumps - 1;
+    // todo: something is wonky with this retval
+    return jumps;
 }
 
 function getFarthestJumpFromPos(ns: NS, arr: number[], pos: number): number {

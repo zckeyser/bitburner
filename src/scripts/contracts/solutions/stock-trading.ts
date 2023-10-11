@@ -5,6 +5,11 @@ export async function main(ns: NS) {
     let k: number = input[0] as number;
     let prices: number[] = input[1] as number[];
 
+    // for stock trader 2 case w/unlimited trades
+    if(k === -1) {
+        k = prices.length;
+    }
+
     let bestTrade = analyzeTrades(k, prices, ns);
     ns.tprint(`The best available trade margin is: ${bestTrade}`);
 }

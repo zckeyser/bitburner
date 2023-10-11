@@ -8,6 +8,7 @@ export async function main(ns: NS) {
     ns.tprint(graph);
 }
 
+// NOTE: I stole this from https://github.com/jjclark1982/bitburner-scripts/blob/main/contracts/solvers.js
 export function colorGraph(N: number, edges: number[][]): number[] {
     //Helper function to get neighbourhood of a vertex
     function neighbourhood(vertex: number) {

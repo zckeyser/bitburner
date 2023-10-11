@@ -1,5 +1,5 @@
 import { farmFactionForAugments } from "scripts/singularity/factions/faction-farming";
-import { train } from "scripts/singularity/training/combat-training";
+import { trainCombatSkills } from "scripts/singularity/training/combat-training";
 import { NS } from "Bitburner";
 
 /**
@@ -13,7 +13,6 @@ import { NS } from "Bitburner";
 export async function main(ns: NS) {
     let scriptFlags = ns.flags([["--focus", false]]);
     let focus = Boolean(scriptFlags.focus);
-    train(ns, "powerhouse gym", 150, 1, focus);
 
     // TODO: how to find factions?
     let faction = "";

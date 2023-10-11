@@ -9,8 +9,9 @@ const SpaceCharCode = 32;
 export async function main(ns: NS) {
     const logger = new TermLogger(ns);
 
-    const cipherText = String(ns.args[0]);
-    const cipherKey = Number(ns.args[1]);
+    const input = JSON.parse(String(ns.args[0]));
+    const cipherText = String(input[0]);
+    const cipherKey = Number(input[1]);
 
     logger.info(`Decrypting cipher text ${cipherText} with key ${cipherKey}`);
 

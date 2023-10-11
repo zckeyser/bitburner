@@ -6,6 +6,7 @@ export async function main(ns: NS) {
     ns.tprint(`Encoded: ${binary}`);
 }
 
+// NOTE: I stole this from https://github.com/jjclark1982/bitburner-scripts/blob/main/contracts/solvers.js
 function hammingIntegerToBinary(value: number) {
      // encoding following Hammings rule
      function HammingSumOfParity(_lengthOfDBits) {

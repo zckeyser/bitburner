@@ -21,7 +21,8 @@ interface MatrixAttributes {
 
 
 export async function main(ns: NS) {
-    let spiraled = spiralize(ns, Input);
+    let input = JSON.parse(String(ns.read("data/input.txt")));
+    let spiraled = spiralize(ns, input);
 
     ns.tprint(`Spiraled array: [${spiraled}]`);
 }
