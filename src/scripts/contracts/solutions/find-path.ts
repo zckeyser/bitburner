@@ -8,7 +8,7 @@ export async function main(ns: NS) {
     const grid = JSON.parse(ns.read("data/input.txt"));
     const paths = findShortestPaths(grid, ns);
 
-    if(!paths) {
+    if(paths.length === 0) {
         termLogger.info("No paths found");
     } else {
         termLogger.info(`Found shortest path: ${paths[0]}`);
@@ -21,6 +21,8 @@ export async function main(ns: NS) {
  * @returns 
  */
 export function findShortestPaths(grid: number[][], ns: NS): string[] {
+    const cache = new Map();
+
     /**
      * Recursively searches for paths through a grid of numbers, where 1 represents an impassable space
      * @param grid 
@@ -31,23 +33,17 @@ export function findShortestPaths(grid: number[][], ns: NS): string[] {
      */
     function search(grid: number[][], x: number, y: number, visited: string[]): string[] {
         const coordinatesKey = JSON.stringify([x, y]);
-        ns.tprint(`${coordinatesKey}, ${visited}`);
+        if(cache.has(coordinatesKey)) {
+            return cache.get(coordinatesKey);
+        }
         
         if(y == grid.length && x == grid[0].length) {
-            // reached the end! add suffix to make clear that this reached the end
-            ns.tprint(`Reached the end at ${coordinatesKey}!`);
             return ["^end"];
         } else if(x < 0 || x >= grid[0].length || y < 0 || y >= grid.length) {
-            // out of bounds, return no paths
-            ns.tprint(`OOB: ${coordinatesKey}`);
             return [];
         } else if (visited.includes(coordinatesKey)) {
-            ns.tprint(`Already visited: ${coordinatesKey}`);
-            // we already visited this node, return no paths
             return [];
         } else if (grid[y][x] === 1) {
-            ns.tprint(`Blocked: ${coordinatesKey}`);
-            // hit a blocked square, return no paths
             return [];
         }
 
@@ -71,11 +67,12 @@ export function findShortestPaths(grid: number[][], ns: NS): string[] {
         leftPaths = leftPaths.map(path => `L${path}`);
         paths = [...paths, ...leftPaths];
 
-        return paths;
+        cache.set(coordinatesKey, paths);
+        return cache.get(coordinatesKey);
     }
     
     let paths = search(grid, 0, 0, []);
-    ns.tprint(paths);
+    ns.tprint("Paths: ", paths);
     let validPaths = paths.filter(path => path.endsWith("^end")).map(path => path.replace("^end", ""));
     validPaths.sort((a, b) => a.length - b.length);
     

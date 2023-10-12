@@ -19,7 +19,7 @@ NOTE: The data returned for this contract is an array with the number of rows an
 
 [14, 4]
  */
-function uniquePathsByDimensions(width: number, length: number) {
+function uniquePathsByDimensions(width: number, length: number): number {
     function countPaths(x: number, y: number): number {
         if(x > width || y > length) {
             // passed the edge
