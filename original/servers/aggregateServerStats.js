@@ -1,1 +1,0 @@
-{"ram":{"average":103,"max":{"value":2048,"hostname":"fulcrumtech"}},"money":{"average":114119607744,"max":{"value":1545744788925,"hostname":"ecorp"}},"hackLevelRequired":{"average":609,"max":{"value":1538,"hostname":"fulcrumassets"}},"minDifficultyToMoneyRatio":{"average":4248201158,"max":{"value":46840751179.545456,"hostname":"ecorp"}}}
