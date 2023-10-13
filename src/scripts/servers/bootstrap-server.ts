@@ -3,19 +3,17 @@ import { NS } from "Bitburner";
 
 /** @param ns */
 export async function main(ns: NS) {
-  let serverName = String(ns.args[0]);
-  ns.print(`Bootstrapping ${serverName}`);
-  if(!serverName) {
+  let target = String(ns.args[0]);
+  ns.print(`Bootstrapping ${target}`);
+  if(!target) {
     throw Error("Must provide a target server argument, e.g. 'bootstrap-server.js foodnstuff'");
   }
-  ns.killall(serverName, false);
-  let scripts = ns.ls("home", "scripts");
-  let lib = ns.ls("home", "lib");
-  scripts.forEach(s => {
-    ns.scp(s, serverName);
+  bootstrapServer(ns, target);
+}
+
+export function bootstrapServer(ns: NS, target: string) {
+  let homeFiles = ns.ls("home", "/");
+  homeFiles.forEach(s => {
+    ns.scp(s, target, "home");
   });
-  lib.forEach(s => {
-    ns.scp(s, serverName);
-  });
-  ns.scp("servers/serverList.txt", serverName);
 }

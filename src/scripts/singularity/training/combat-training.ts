@@ -8,9 +8,12 @@ const GymCosts = {
   "iron gym": 120,
 }
 
+export type TrainingGym = "powerhouse gym"|
+                          "iron gym"
+
 export interface CombatTrainingParams {
   /** the gym to train at */
-  gymToUse: string
+  gymToUse: TrainingGym
   /** the stat threshold to train up to before stopping, defaults to infinity */
   statThreshold?: number
   /** the ratio of money to attempt to earn through crime relative to that spent to train. defaults to 1 */
@@ -33,7 +36,7 @@ export async function main(ns: NS) {
   const earningsRatio = Number(scriptFlags.earningsRatio);
 
   await trainCombatSkills(ns, {
-      gymToUse: gymToUse,
+      gymToUse: gymToUse as TrainingGym,
       statThreshold: statThreshold,
       focus: focus,
       earningsRatio: earningsRatio
@@ -47,12 +50,12 @@ export async function main(ns: NS) {
  */
 export async function trainCombatSkills(ns: NS, params: CombatTrainingParams) {
   const gymToUse = params.gymToUse;
-  const maxCycles = params.maxCycles !== undefined ? params.maxCycles : Infinity
-  const timeToTrainStat = params.timetoTrainStat !== undefined ? params.timetoTrainStat : 60000;
+  const maxCycles = params.maxCycles ? params.maxCycles : Infinity
+  const timeToTrainStat = params.timetoTrainStat ? params.timetoTrainStat : 60000;
   const secondsToTrainStat = timeToTrainStat / 1000;
-  const statThreshold = params.statThreshold !== undefined ? params.statThreshold : Infinity;
-  const earningsRatio = params.earningsRatio !== undefined ? params.earningsRatio : 1;
-  const focus = params.focus !== undefined ? params.focus : false;
+  const statThreshold = params.statThreshold ? params.statThreshold : Infinity;
+  const earningsRatio = params.earningsRatio ? params.earningsRatio : 1;
+  const focus = params.focus ? params.focus : false;
 
   const gymCostPerCycle = GymCosts[gymToUse] * secondsToTrainStat * CombatStats.length;
   let cycles = 0;
@@ -82,8 +85,9 @@ export async function trainCombatSkills(ns: NS, params: CombatTrainingParams) {
     let secondsToWorkOffGymCost = timeToWorkOffGymCost / 1000;
     ns.singularity.commitCrime(optimalCrime.crimeName, focus);
     ns.print(`Doing crime ${optimalCrime.crimeName} for ${secondsToWorkOffGymCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}s to earn \$${(optimalCrime.moneyPerSecond * secondsToWorkOffGymCost).toLocaleString(undefined, {maximumFractionDigits: 2})}`)
-    // work at the crime for as long as we expect to need to to pay off the cost of the gym 
-    await ns.sleep(timeToWorkOffGymCost);   
+    
+    // work at the crime for as long as we expect to need to to pay off the cost of the gym
+    await ns.sleep(timeToWorkOffGymCost);
 
     cycles++;
   }

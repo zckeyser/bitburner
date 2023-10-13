@@ -18,19 +18,25 @@ The intervals must be returned in ASCENDING order. You can assume that in an int
  */
 
 import { NS } from "Bitburner";
+import { TermLogger } from "/lib/Helpers";
 
 export async function main(ns: NS) {
     const input: number[][] = JSON.parse(String(ns.args[0]));
-    ns.tprint(`Merging intervals in ${input}`);
+    const logger = new TermLogger(ns);
 
-    ns.tprint(mergeIntervals(ns, input))
+    logger.info(`Merging intervals in ${JSON.stringify(input)}`);
+
+    logger.info(`Merged intervals: ${JSON.stringify(mergeIntervals(ns, input))}`);
 }
 
 export function mergeIntervals(ns: NS, intervals: number[][]): number[][] {
+    // safety off-ramp for if we end up in an infinite loop
+    const maxPasses = intervals.length * 3;
     let merged = [...intervals];
 
-    let i = 0;
-    while(hasOverlappingIntervals(merged)) {
+    let [i, passes] = [0, 0];
+    while(passes < maxPasses && hasOverlappingIntervals(merged)) {
+        passes++;
         let interval = merged[i];
         const overlappingIntervals = merged.filter((otherInterval) => isOverlapping(interval, otherInterval));
         
@@ -42,6 +48,10 @@ export function mergeIntervals(ns: NS, intervals: number[][]): number[][] {
         const nonOverlappingIntervals = merged.filter((otherInterval) => !isOverlapping(interval, otherInterval));
         let mergedInterval = overlappingIntervals.reduce(([accLow, accHigh], [otherLow, otherHigh]) => [Math.min(otherLow, accLow), Math.max(otherHigh, accHigh)], interval);
         merged = [mergedInterval, ...nonOverlappingIntervals];
+    }
+    if (passes == maxPasses) {
+        const logger = new TermLogger(ns);
+        logger.warn(`Reached max passes of ${maxPasses}`);
     }
 
     return merged;
@@ -64,5 +74,5 @@ function hasOverlappingIntervals(intervals: number[][]): boolean {
 function isOverlapping(a: number[], b: number[]): boolean {
     const [aLow, aHigh] = a;
     const [bLow, bHigh] = b;
-    return bLow < aHigh && bHigh > aLow
+    return bLow <= aHigh && bHigh >= aLow
 }

@@ -2,9 +2,11 @@ import { NS } from "Bitburner";
 import { TermLogger } from "/lib/Helpers";
 import { getGrowthThreads, getGrowthPercent } from 'lib/growth.js';
 import { getHackablePorts } from 'lib/ports.js';
+import { ActionScriptsDirectory } from "/lib/Constants";
 
-const ActionScriptsDirectory = "scripts/hack/actions/";
-
+const RetryMaxAttempts = 300;
+const RetryIntervalBaseSeconds = 1;
+const MaxRetryBackoffExponent = 6;
 
 /** @param ns */
 export async function main(ns: NS) {
@@ -13,17 +15,20 @@ export async function main(ns: NS) {
   if (!target) {
     throw new Error(`proto-batcher.js requires a target argument via the --target flag, e.g. 'run proto-batcher.js --target foodnstuff'`)
   }
-  const logger = new TermLogger(ns);
   const currentHost = ns.getHostname();
   const cores = ns.getServer(currentHost).cpuCores;
-  let isRooted = ns.hasRootAccess(target);
   let isHackable = false;
   let ramCap = ns.getServerMaxRam(currentHost);
+  let retries = 0;
 
   if (currentHost === "home" && ramCap >= 128) {
     // save a bit of home ram so we can run spare scripts
     // but only if we have ram to spare
     ramCap -= 15;
+    if(ramCap >= 1024) {
+      // save a decent chunk of ram (75GB) if we've got a big home server
+      ramCap -= 60
+    }
   }
 
   while (true) {
@@ -35,8 +40,28 @@ export async function main(ns: NS) {
     let player = ns.getPlayer();
     let availableRam = ramCap - ns.getServerUsedRam(currentHost);
 
-    if (!server.requiredHackingSkill || (!server.numOpenPortsRequired && server.numOpenPortsRequired != 0) || !server.hackDifficulty || !server.minDifficulty || !server.moneyAvailable || !server.moneyMax) {
-      throw Error(`Server missing required characteristic: ${server}`);
+    if(!server.requiredHackingSkill || (!server.numOpenPortsRequired && server.numOpenPortsRequired !== 0) || !server.hackDifficulty || !server.minDifficulty || (!server.moneyAvailable && server.moneyAvailable !== 0) || !server.moneyMax ) {
+      if(retries > RetryMaxAttempts) {
+        ns.print(`Max retries of ${RetryMaxAttempts} reached, throwing error`);
+        throw Error(`Server missing required characteristic: ${JSON.stringify(server)}`);
+      } else {
+        retries++;
+        
+        const valuesOfRequiredFields = {
+          requiredHackingSkill: server.requiredHackingSkill,
+          numOpenPortsRequired: server.numOpenPortsRequired,
+          hackDifficulty: server.hackDifficulty,
+          minDifficulty: server.minDifficulty,
+          moneyAvailable: server.moneyAvailable,
+          moneyMax: server.moneyMax
+        }
+
+        // exponential backoff, max out at ~1m retry backoff
+        const backoffTime = RetryIntervalBaseSeconds * 1000 * Math.pow(2, Math.min(retries, MaxRetryBackoffExponent));
+        ns.print(`Failed to find expected fields on server object ${JSON.stringify(server)}. Retrying after ${(backoffTime/1000).toLocaleString(undefined, {maximumFractionDigits: 2})}s. The expected fields and their values are: ${JSON.stringify(valuesOfRequiredFields)}`);
+        await ns.sleep(backoffTime);
+        continue;
+      }
     }
 
     if (!isHackable) {
@@ -56,9 +81,8 @@ export async function main(ns: NS) {
       }
     }
 
-    if (!isRooted) {
+    if (!server.hasAdminRights) {
       scriptToRun += "init.js";
-      isRooted = true;
     } else if (server.hackDifficulty > server.minDifficulty) {
       let amountToReduce = server.hackDifficulty - server.minDifficulty;
       let reductionPerCall = .05;
@@ -112,7 +136,7 @@ export async function main(ns: NS) {
 
     ns.print(`Running ${scriptToRun} for ${(timeToWait / 1000).toLocaleString(undefined, { maximumFractionDigits: 2 })}s against target ${target}, which will use ${scriptRam * threadsToUse}GB of RAM`);
 
-    ns.run(scriptToRun, { threads: threadsToUse }, target);
+    ns.exec(scriptToRun, currentHost, { threads: threadsToUse }, "--target", target);
     await ns.sleep(timeToWait);
   }
 }

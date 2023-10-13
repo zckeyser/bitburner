@@ -3,24 +3,26 @@ import { scanNetwork } from '/lib/servers/scan-servers';
 import { getHackablePorts } from 'lib/ports.js';
 
 
-const MinMoneyThreshold = 10000000;
+const MinMoneyThreshold = 1000000;
 const MaxMoneyThreshold = 1000000000;
 
 const ProtoBatcherPath = "scripts/hack/midgame/proto-batcher.js"
 
 /** @param {NS} ns */
 export async function main(ns: NS) {
-  const scriptFlags = ns.flags([["maxBatchers", Infinity]]);
-  const maxBatchers = Number(scriptFlags.maxBatchers);
+  const scriptFlags = ns.flags([["max", Infinity]]);
+  const maxBatchers = Number(scriptFlags.max);
   const serverNames = scanNetwork(ns)[0];
   const servers = serverNames.map(ns.getServer);
   const serversByMaxEarning = servers.sort((a, b) => (getServerMaxMoneyToSecurityRatio(a) - getServerMaxMoneyToSecurityRatio(b)));
 
   while (true) {
     let batcherCount = 0;
+
     // clear the server to start off new batchers
     ns.killall();
-    // .01% of money or 10,000,0000 for minimum or 100,000,000,000 for maximum
+
+    // .01% of money or 1,000,000 for minimum or 100,000,000,000 for maximum
     const moneyThreshold = Math.min(Math.max(.01 * ns.getServerMoneyAvailable("home"), MinMoneyThreshold), MaxMoneyThreshold);
     const player = ns.getPlayer();
 

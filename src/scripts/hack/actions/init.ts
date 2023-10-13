@@ -3,8 +3,12 @@ import {NS} from "Bitburner";
 /** @param ns */
 export async function main(ns: NS) {
   let portsHacked = 0;
-  let target = String(ns.args[0]);
-  let server = ns.getServer(target);
+  const scriptFlags = ns.flags([["target", ""]]);
+  const target = String(scriptFlags.target);
+  if(!target) {
+    throw new Error("Must pass --target argument");
+  }
+  const server = ns.getServer(target);
   try {
     if(!server.sshPortOpen) {
       ns.brutessh(target);

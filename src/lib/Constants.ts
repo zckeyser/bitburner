@@ -436,3 +436,7 @@ export type AugmentName =
     | "BLADE-51b Tesla Armor: Omnibeam Upgrade"
     | "BLADE-51b Tesla Armor: IPU Upgrade"
     | "The Blade's Simulacrum";
+
+export const ActionScriptsDirectory = "scripts/hack/actions/";
+export const SecurityIncreaseForHack = 0.002;
+export const SecurityDecreaseForWeaken = 0.05;

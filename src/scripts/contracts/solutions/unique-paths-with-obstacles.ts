@@ -30,14 +30,16 @@ export async function main(ns: NS) {
 
 
 function uniquePathsInGrid(ns: NS, grid: number[][]): number {
+    const width = grid[0].length;
+    const length = grid.length;
     function countPaths(x: number, y: number): number {
-        if(x >= grid[0].length || y >= grid.length) {
+        if(x === width || y === length) {
             // passed the edge
             return 0;
         } else if(grid[y][x] === 1) {
             // impassable space
             return 0;
-        } else if(x == grid[0].length - 1 && y == grid.length - 1) {
+        } else if(x === width - 1 && y === length - 1) {
             // reached the end
             return 1;
         }

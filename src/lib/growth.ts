@@ -17,7 +17,13 @@ const GrowthMaxThreads = 4000;
  * @param maxThreads max threads to use for grow, defaults to GrowthMaxThreads (4000)
  * @returns number of threads required to reach max server money, or max threads if that isn't enough to reach max money
  */
-export function getGrowthThreads(ns: NS, server: Server, player: Player, cores: number, maxThreads: number=GrowthMaxThreads): number {
+export function getGrowthThreads(ns: NS, server: Server, player: Player, cores: number, maxThreads: number=GrowthMaxThreads, moneyAvailable: number=0): number {
+  if(!moneyAvailable) {
+    moneyAvailable = (server.moneyAvailable || 0);
+  }
+  if(!moneyAvailable) {
+    return Infinity;
+  }
   let threadCount = 1;
   let growthPercent = 0;
   let newValue = 0;

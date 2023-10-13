@@ -1,7 +1,8 @@
 import { NS } from "Bitburner";
-import { trainCombatSkills } from "scripts/singularity/training/combat-training";
+import { TrainingGym, trainCombatSkills } from "scripts/singularity/training/combat-training";
 
-const TrainingTimePerStat = 60000;
+// temporary short time for debugging
+const TrainingTimePerStat = 1 * 1000;
 
 
 // TODO: do this better
@@ -9,7 +10,7 @@ const Universities = [
     "Rothman University"
 ]
 const Gyms = [
-    "Powerhouse Gym"
+    "powerhouse gym"
 ]
 
 
@@ -37,7 +38,7 @@ export async function trainEverything(ns:  NS, statThreshold: number, focus?: bo
 
         // train combat skills + crime for money
         await trainCombatSkills(ns, {
-            gymToUse: Gyms[0],
+            gymToUse: Gyms[0] as TrainingGym,
             statThreshold: statThreshold,
             focus: focus,
             maxCycles: 1,
