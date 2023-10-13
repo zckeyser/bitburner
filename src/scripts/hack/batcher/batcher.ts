@@ -6,6 +6,11 @@ import { ActionScriptsDirectory, SecurityDecreaseForWeaken, SecurityIncreaseForH
 const HackThreads = 290;
 const DelayBetweenSteps = 100;
 
+const WeakenScriptLocation = `${ActionScriptsDirectory}weaken.js`;
+const GrowScriptLocation = `${ActionScriptsDirectory}grow.js`;
+const HackScriptLocation = `${ActionScriptsDirectory}hack.js`;
+const InitScriptLocation = `${ActionScriptsDirectory}init.js`;
+
 
 export interface ScriptRunSpec {
     /** script to run */
@@ -29,16 +34,6 @@ export async function main(ns: NS) {
     const hackThreads = Number(scriptFlags.hackThreads);
     const currentHost = ns.getHostname();
     const cores = ns.getServer(currentHost).cpuCores;
-    let isRooted = ns.hasRootAccess(target);
-    let isHackable = false;
-    let ramCap = ns.getServerMaxRam(currentHost);
-    let retries = 0;
-  
-    if (currentHost === "home" && ramCap > 256) {
-      // save a bit of home ram so we can run spare scripts
-      // but only if we have ram to spare
-      ramCap -= 30;
-    }
 
     await prepareServerForBatching(ns, target, cores);
 
@@ -56,8 +51,17 @@ export async function main(ns: NS) {
  * @param cores 
  */
 export async function runBatching(ns: NS, target: string, cores: number, hackThreads: number=HackThreads) {
+    let serverLastPreparedTime = Date.now();
+    let hostname = ns.getHostname();
+    let oneHour = 60 * 60 * 1000;
     while(true) {
-        const host = ns.getServer(ns.getHostname());
+        if(Date.now() - serverLastPreparedTime >= oneHour) {
+            // periodically re-run the prepare script in case there's any drift
+            // with imperfect offsets causing the server to not sit at max money/min sec as it should for batching.
+            await prepareServerForBatching(ns, target, cores);
+            serverLastPreparedTime = Date.now();
+        }
+        const host = ns.getServer(hostname);
         const server = ns.getServer(target);
         const player = ns.getPlayer();
         const timeToWeaken = ns.getWeakenTime(target);
@@ -72,24 +76,24 @@ export async function runBatching(ns: NS, target: string, cores: number, hackThr
 
         // hack
         const hack = {
-            script: `${ActionScriptsDirectory}hack.js`,
+            script: HackScriptLocation,
             threads: hackThreads,
             runtime: timeToHack
         };
         batchUsedRam += hack.threads * ns.getScriptRam(hack.script);
         const secIncreaseForHack = SecurityIncreaseForHack * hack.threads;
-        const moneyDecreaseForHack = ns.hackAnalyze(target) * hack.threads;
-        const moneyAfterHack = server.moneyMax - moneyDecreaseForHack;
+        const moneyStolenByHack = ns.hackAnalyze(target) * hack.threads;
+        const moneyAfterHack = server.moneyMax - moneyStolenByHack;
         // weaken to offset hack
         const weakenForHack = {
-            script: `${ActionScriptsDirectory}weaken.js`,
+            script: WeakenScriptLocation,
             threads: Math.ceil(secIncreaseForHack / SecurityDecreaseForWeaken),
             runtime: timeToWeaken,
         };
         batchUsedRam += hack.threads * ns.getScriptRam(weakenForHack.script);
         // grow
         const grow = {
-            script: `${ActionScriptsDirectory}grow.js`,
+            script: GrowScriptLocation,
             threads: getGrowthThreads(ns, server, player, cores, 1000, moneyAfterHack),
             runtime: timeToGrow
         };
@@ -97,7 +101,7 @@ export async function runBatching(ns: NS, target: string, cores: number, hackThr
         let secIncreaseForGrow = ns.growthAnalyzeSecurity(grow.threads);
         // weaken to offset grow
         const weakenForGrow = {
-            script: `${ActionScriptsDirectory}weaken.js`,
+            script: WeakenScriptLocation,
             threads: Math.ceil(secIncreaseForGrow / SecurityDecreaseForWeaken),
             runtime: timeToWeaken
         }
@@ -119,12 +123,12 @@ export async function runBatching(ns: NS, target: string, cores: number, hackThr
         
         const timeToWait = scriptsToRun.reduce((acc, next) => Math.max(acc, next.runtime + (next.delay || 0)), 0);
         
+        ns.print(`Money to be earned from hack: ${moneyStolenByHack}`)
         ns.print(`Batch cost: ${batchUsedRam}GB`);
-        // TODO: do I need to partion these across servers?
         for(const scriptRun of scriptsToRun) {
-            ns.exec(scriptRun.script, "home", {threads: scriptRun.threads}, "--target", target, "--delay", (scriptRun.delay || 0))
+            ns.exec(scriptRun.script, host.hostname, {threads: scriptRun.threads}, "--target", target, "--delay", (scriptRun.delay || 0))
         }
-        await ns.sleep(timeToWait)
+        await ns.sleep(timeToWait + 200)
     }
 }
 
@@ -150,7 +154,7 @@ function applyDelaysForBatch(scriptsToRun: ScriptRunSpec[]): ScriptRunSpec[] {
     hack.delay = weakenForHack.runtime - hack.runtime - DelayBetweenSteps;
     // delay the grow such that it finishes 100ms after the hack weaken goes off
     grow.delay = weakenForHack.runtime - grow.runtime + DelayBetweenSteps;
-    // delay the grow weaken such that it finishes 100ms after the grow goes off
+    // delay the grow weaken such that it finishes 300ms after the grow goes off
     weakenForGrow.delay = grow.delay + grow.runtime - weakenForGrow.runtime + DelayBetweenSteps * 2
 
     return delayedScripts;
@@ -162,13 +166,13 @@ export async function prepareServerForBatching(ns: NS, target: string, cores: nu
         const host = ns.getServer(ns.getHostname());
         const player = ns.getPlayer();
         const server = ns.getServer(target);
+        const availableRam = server.maxRam - server.ramUsed;
         const hackDifficulty = server?.hackDifficulty || 0;
         const minDifficulty = server?.minDifficulty || 0;
         const moneyAvailable = server?.moneyAvailable || 0;
         const moneyMax = server?.moneyMax || 0;
-        let threadsToUse = 1;
-        let scriptToRun = ActionScriptsDirectory;
-        let timeToWait = 1000;
+        // let scriptToRun = ActionScriptsDirectory;
+        const scriptsToRun: ScriptRunSpec[] = [];
 
         if(serverIsReadyForBatches(server)) {
             // if we're ready to start batching, stop this loop
@@ -176,24 +180,59 @@ export async function prepareServerForBatching(ns: NS, target: string, cores: nu
         }
 
         if (!server.hasAdminRights) {
-            scriptToRun += "init.js";
+            scriptsToRun.push({
+                script: InitScriptLocation,
+                threads: 1,
+                runtime: 1000
+            });
         } else if (hackDifficulty > (server?.minDifficulty || 100)) {
             let amountToReduce = hackDifficulty - minDifficulty;
             let reductionPerCall = .05;
-            threadsToUse = Math.ceil(amountToReduce / reductionPerCall);
-
-            timeToWait = ns.getWeakenTime(target) + 200;
-            scriptToRun += "weaken.js";
+            const maxThreads = Math.floor(availableRam / ns.getScriptRam(WeakenScriptLocation));
+            let threads = Math.min(maxThreads, Math.ceil(amountToReduce / reductionPerCall));
+            scriptsToRun.push({
+                script: WeakenScriptLocation,
+                threads: threads,
+                runtime: ns.getWeakenTime(server.hostname)
+            })
         } else if (moneyAvailable < moneyMax) {
-            threadsToUse = getGrowthThreads(ns, server, player, cores)
-            timeToWait = ns.getGrowTime(target) + 200;
-            scriptToRun += "grow.js";
+            // TODO: abstract grow w/offset?
+            const maxGrowthThreads = getMaxThreads(ns, GrowScriptLocation, availableRam);
+            // grow
+            const grow: ScriptRunSpec = {
+                script: GrowScriptLocation,
+                threads: getGrowthThreads(ns, server, player, cores, maxGrowthThreads, server.moneyAvailable),
+                runtime: ns.getGrowTime(server.hostname)
+            };
+            let secIncreaseForGrow = ns.growthAnalyzeSecurity(grow.threads);
+            // weaken to offset grow
+            const weakenForGrow: ScriptRunSpec = {
+                script: WeakenScriptLocation,
+                threads: Math.ceil(secIncreaseForGrow / SecurityDecreaseForWeaken),
+                runtime: ns.getWeakenTime(server.hostname)
+            }
+            // to avoid overflowing memory w/the added weaken calls
+            if(grow.threads === maxGrowthThreads) {
+                grow.threads -= weakenForGrow.threads;
+            }
+            grow.delay = weakenForGrow.runtime - grow.runtime + DelayBetweenSteps;
+            scriptsToRun.push(grow);
+            scriptsToRun.push(weakenForGrow)
         }
 
-        threadsToUse = Math.min(getMaxThreads(ns, scriptToRun, host.maxRam - host.ramUsed), threadsToUse);
-
-        ns.run(scriptToRun, {threads: threadsToUse}, "--target", target);
-        await ns.sleep(timeToWait);
+        
+        const timeToWait = scriptsToRun.reduce((acc, next) => Math.max(acc, next.runtime + (next.delay || 0)), 0);
+        
+        for(const scriptRun of scriptsToRun) {
+            if(scriptRun.threads <= 0) {
+                ns.print(`Got bad script run spec with <= 0 threads: ${JSON.stringify(scriptRun)}. Waiting 10s and calculating again.`);
+                await ns.sleep(10 * 1000);
+                break;
+            }
+            ns.exec(scriptRun.script, host.hostname, {threads: scriptRun.threads}, "--target", target, "--delay", (scriptRun.delay || 0))
+        }
+        // TODO: tweak this until we don't get race conds
+        await ns.sleep(timeToWait + DelayBetweenSteps * 10)
     }
 }
 

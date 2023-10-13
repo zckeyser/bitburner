@@ -12,7 +12,7 @@ export async function main(ns: NS) {
 }
 
 export function bootstrapServer(ns: NS, target: string) {
-  let homeFiles = ns.ls("home", "/");
+  let homeFiles = ns.ls("home", "/").filter(filename => filename.endsWith(".txt") || filename.endsWith(".js"));
   homeFiles.forEach(s => {
     ns.scp(s, target, "home");
   });
