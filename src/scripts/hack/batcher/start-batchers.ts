@@ -38,7 +38,9 @@ export async function startBatchers(ns: NS, useHome: boolean) {
       .filter((server) => (server.moneyMax || 0) > MinMoneyThreshold)
       .filter((server) => isHackable(ns, server, player))
       .reverse();
-    const hosts = useHome ? ["home", ...ns.getPurchasedServers()] : ns.getPurchasedServers();
+    let hosts = useHome ? ["home", ...ns.getPurchasedServers()] : ns.getPurchasedServers();
+    ns.tprint(hosts);
+
 
     for (const hostname of hosts) {
       if(!hostToTargetServer.has(hostname)) {
@@ -54,13 +56,16 @@ export async function startBatchers(ns: NS, useHome: boolean) {
       const server = hostToTargetServer.get(hostname);
 
       const runningBatcherProcess = ns.ps(hostname).filter(process => process.filename.includes(BatcherPath));
-      if(!runningBatcherProcess) {
+      ns.print(runningBatcherProcess.length);
+      if(runningBatcherProcess.length == 0) {
         ns.print(`Bootstrapping ${hostname}`);
         bootstrapServer(ns, hostname);
         ns.print(`Running a batcher against ${server.hostname} from ${hostname}`);
         const hackThreads = Math.floor(ns.getServerMaxRam(hostname) / DesiredRamPerHackThread);
         ns.exec(BatcherPath, hostname, { threads: 1 }, "--target", server.hostname, "--hackThreads", hackThreads);
         batcherCount++;
+      } else {
+        ns.print(`Found running batcher process: ${JSON.stringify(runningBatcherProcess)}, skipping`)
       }
     }
 

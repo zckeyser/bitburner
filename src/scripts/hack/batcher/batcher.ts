@@ -166,7 +166,7 @@ export async function prepareServerForBatching(ns: NS, target: string, cores: nu
         const host = ns.getServer(ns.getHostname());
         const player = ns.getPlayer();
         const server = ns.getServer(target);
-        const availableRam = server.maxRam - server.ramUsed;
+        const availableRam = host.maxRam - host.ramUsed;
         const hackDifficulty = server?.hackDifficulty || 0;
         const minDifficulty = server?.minDifficulty || 0;
         const moneyAvailable = server?.moneyAvailable || 0;
@@ -225,7 +225,7 @@ export async function prepareServerForBatching(ns: NS, target: string, cores: nu
         
         for(const scriptRun of scriptsToRun) {
             if(scriptRun.threads <= 0) {
-                ns.print(`Got bad script run spec with <= 0 threads: ${JSON.stringify(scriptRun)}. Waiting 10s and calculating again.`);
+                ns.print(`Got bad script run spec with <= 0 threads: ${JSON.stringify(scriptRun)} from script list ${JSON.stringify(scriptsToRun)}. Waiting 10s and calculating again.`);
                 await ns.sleep(10 * 1000);
                 break;
             }

@@ -28,19 +28,22 @@ export function getGrowthThreads(ns: NS, server: Server, player: Player, cores: 
   let growthPercent = 0;
   let newValue = 0;
   
-  if(!server.moneyAvailable || !server.moneyMax) {
+  if(!server.moneyAvailable && server.moneyAvailable !== 0 || !server.moneyMax) {
+    ns.print(`Invalid server with no money, returning 0 for growth threads`);
     return 0;
   }
 
   while (threadCount < maxThreads) {
+    const moneyAvailable = server.moneyAvailable ?? threadCount;
     growthPercent = getGrowthPercent(ns, server, player, threadCount, cores);
-    newValue = growthPercent * server.moneyAvailable; 
+    newValue = growthPercent * moneyAvailable; 
     if (newValue >= server.moneyMax) {
       // found a high enough value to use, break and return it
       break;
     }
     threadCount++;
   }
+
   return threadCount;
 }
 

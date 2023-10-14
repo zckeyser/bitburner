@@ -3,7 +3,8 @@ import {NS} from "Bitburner";
 /** @param ns */
 export async function main(ns: NS) {
   let portsHacked = 0;
-  const scriptFlags = ns.flags([["target", ""]]);
+  // NOTE: delay is here only to make it the same as the other actions
+  const scriptFlags = ns.flags([["target", ""], ["delay", 0]]);
   const target = String(scriptFlags.target);
   if(!target) {
     throw new Error("Must pass --target argument");

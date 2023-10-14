@@ -4,8 +4,8 @@ const UppercaseAlphaOffset = 65;
 
 
 export async function main(ns: NS) {
-    let plaintext = String(ns.args[0]);
-    let keyword = String(ns.args[1]);
+    const input: string[] = JSON.parse(String(ns.args[0]));
+    const [plaintext, keyword] = input;
     ns.tprint(vignereCipher(plaintext, keyword));
 }
 
@@ -21,7 +21,7 @@ export function vignereCipher(plaintext: string, keyword: string): string {
             return c;
         }
         const newCharCode = (((charCode - UppercaseAlphaOffset) + offset) % 26) + UppercaseAlphaOffset;
-        keywordIndex = ((keywordIndex + 1) % keyword.length)
+        keywordIndex = ((keywordIndex + 1) % keyword.length);
         return String.fromCharCode(newCharCode);
     }).join('');
 }
