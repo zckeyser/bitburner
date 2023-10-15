@@ -1,17 +1,10 @@
 import { NS } from "Bitburner";
 import { TrainingGym, trainCombatSkills } from "scripts/singularity/training/combat-training";
+import { trainCharisma } from "scripts/singularity/training/charisma-training";
+import { trainHacking } from "scripts/singularity/training/hack-training";
+import { Gyms } from "/lib/Constants";
 
-// temporary short time for debugging
-const TrainingTimePerStat = 1 * 1000;
-
-
-// TODO: do this better
-const Universities = [
-    "Rothman University"
-]
-const Gyms = [
-    "powerhouse gym"
-]
+const TrainingTimePerStat = 30 * 1000;
 
 
 export async function main(ns: NS) {
@@ -22,19 +15,12 @@ export async function main(ns: NS) {
 }
 
 export async function trainEverything(ns:  NS, statThreshold: number, focus?: boolean) {
-    const player = ns.getPlayer();
     while(true) {
         // train hacking
-        if(player.skills.hacking < statThreshold) {
-            ns.singularity.universityCourse(Universities[0], "Algorithms", focus);
-            await ns.sleep(TrainingTimePerStat);
-        }
+        await trainHacking(ns, statThreshold, TrainingTimePerStat);
 
         // train charisma
-        if(player.skills.charisma < statThreshold) {
-            ns.singularity.universityCourse(Universities[0], "Leadership", focus);
-            await ns.sleep(TrainingTimePerStat);
-        }
+        await trainCharisma(ns, statThreshold, TrainingTimePerStat);
 
         // train combat skills + crime for money
         await trainCombatSkills(ns, {

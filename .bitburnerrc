@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+alias start-proto-batcher="run scripts/hack/midgame/proto-batcher.js --target"
+alias proto-batch-startup="run scripts/hack/midgame/start-proto-batchers.js"
+alias start-batcher="run scripts/hack/batcher/batcher.js --target"
+alias batch-startup="run scripts/hack/batcher/start-batchers.js"
+alias conn="run bin/utils/connect.js"
+alias buy-servers="run scripts/servers/buy-servers.js"
+alias upgrade-servers="run scripts/servers/upgrade-servers.js"
+alias solve="run scripts/contracts/run-solution.js"
+alias contracts="run scripts/contracts/find-contracts.js"

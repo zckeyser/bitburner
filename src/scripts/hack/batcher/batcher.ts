@@ -189,7 +189,7 @@ export async function prepareServerForBatching(ns: NS, target: string, cores: nu
             let amountToReduce = hackDifficulty - minDifficulty;
             let reductionPerCall = .05;
             const maxThreads = Math.floor(availableRam / ns.getScriptRam(WeakenScriptLocation));
-            let threads = Math.min(maxThreads, Math.ceil(amountToReduce / reductionPerCall));
+            let threads = Math.min(maxThreads, Math.ceil(amountToReduce / reductionPerCall) * 2);
             scriptsToRun.push({
                 script: WeakenScriptLocation,
                 threads: threads,
@@ -204,6 +204,10 @@ export async function prepareServerForBatching(ns: NS, target: string, cores: nu
                 threads: getGrowthThreads(ns, server, player, cores, maxGrowthThreads, server.moneyAvailable),
                 runtime: ns.getGrowTime(server.hostname)
             };
+            // this kept under-growing w/o formulas, and since this is a batcher
+            // we know we'll have plenty of spare mem for this phase since
+            // it's lower mem usage than a batcher
+            grow.threads = Math.min(grow.threads * 2, maxGrowthThreads);
             let secIncreaseForGrow = ns.growthAnalyzeSecurity(grow.threads);
             // weaken to offset grow
             const weakenForGrow: ScriptRunSpec = {

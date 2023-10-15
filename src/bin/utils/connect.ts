@@ -15,14 +15,16 @@ export async function main(ns: NS) {
         logger.err("Must provide target argument");
         return;
     }
-    const path = findPath(ns, target);
+    const findResult = findPath(ns, target);
+    ns.print(`Find result against target ${target}: ${JSON.stringify(findResult)}`)
 
-    if(!path) {
+    if(!findResult.foundTarget) {
         logger.err(`Target ${target} was not found on the network`);
         return;
     }
 
-    chainConnect(ns, path);
+    chainConnect(ns, findResult.path);
+    logger.info(`Connected to ${target}`);
 }
 
 interface FindResult {
@@ -36,7 +38,7 @@ interface FindResult {
  * @param target server to find
  * @returns array of intermediate servers to reach the target server
  */
-export function findPath(ns: NS, target: string): string[] {
+export function findPath(ns: NS, target: string): FindResult {
     const network = scanNetwork(ns)[1];
 
     function findTarget(networkSubset: Object): FindResult {
@@ -68,7 +70,7 @@ export function findPath(ns: NS, target: string): string[] {
         return findResult;
     }
 
-    return findTarget(network).path;
+    return findTarget(network);
 }
 
 /**

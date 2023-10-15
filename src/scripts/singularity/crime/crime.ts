@@ -31,6 +31,20 @@ export async function main(ns: NS) {
   startOptimalCrime(ns, optimizeFor, interval, true);
 }
 
+export async function workCrime(ns: NS, moneyThreshold: number, interval=180, timeLimit: number=Infinity) {
+  let start = Date.now();
+  let optimalCrime = getOptimalCrime(ns, "moneyPerSecond", interval);
+  let nextOptimalCrime: CrimeOppCostStats|undefined = undefined;
+
+  while(ns.getServerMoneyAvailable("home") < moneyThreshold && Date.now() - start < timeLimit) {
+    // if there's a new optimal crime (automatically true on first run), then work that instead
+    if(optimalCrime.crimeName != nextOptimalCrime?.crimeName) {
+      ns.singularity.commitCrime(optimalCrime.crimeName);
+    }
+    await ns.sleep(30000);
+    nextOptimalCrime = getOptimalCrime(ns, "moneyPerSecond", interval);
+  }
+}
 
 export function startOptimalCrime(ns: NS, optimizeFor: string="moneyPerInterval", interval: number=180, logToTerm=false) {
   let logger = new TermLogger(ns);

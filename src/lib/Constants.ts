@@ -437,6 +437,16 @@ export type AugmentName =
     | "BLADE-51b Tesla Armor: IPU Upgrade"
     | "The Blade's Simulacrum";
 
+// TODO: segregate by region
+export const Gyms = [
+    "powerhouse gym"
+];
+export const Universities = [
+    "rothman university"
+]
+
 export const ActionScriptsDirectory = "scripts/hack/actions/";
 export const SecurityIncreaseForHack = 0.002;
 export const SecurityDecreaseForWeaken = 0.05;
+
+export const UtilServerName = `util-serv`;

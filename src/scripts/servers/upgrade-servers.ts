@@ -5,22 +5,18 @@ export async function main(ns: NS) {
   // take target ram as argument
   const ram = Number(ns.args[0]);
 
-  let existingServers = ns.getPurchasedServers();
+  for(let i = 0; i < ns.getPurchasedServers().length;) {
+    const existingServers = ns.getPurchasedServers().filter(serverName => !serverName.startsWith(`util`));
+    const serverName = existingServers[i];
+    const server = ns.getServer(serverName);
 
-  existingServers.forEach(async (serverName) => {
-    while (true) {
-      if (await ns.getServerMaxRam(serverName) >= ram) {
-        break;
-      }
-      if (ns.getServerMoneyAvailable("home") > ns.getPurchasedServerCost(ram)) {
-        ns.print(`Upgrading server ${serverName} to ${ram}GB RAM`)
-        let upgradeWorked = ns.upgradePurchasedServer(serverName, ram);
-        break;
-      }
-
-      // Make the script wait for 3 seconds before looping again.
-      // Removing this line will cause an infinite loop and crash the game.
-      await ns.sleep(3000);
+    if(server.maxRam >= ram) {
+      i++;
+    } else if(ns.getServerMoneyAvailable("home") >= ns.getPurchasedServerUpgradeCost(serverName, ram)) {
+      ns.upgradePurchasedServer(serverName, ram);
+      i++;
     }
-  });
+
+    await ns.sleep(3000);
+  }
 }

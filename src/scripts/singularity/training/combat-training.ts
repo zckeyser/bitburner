@@ -18,6 +18,8 @@ export interface CombatTrainingParams {
   statThreshold?: number
   /** the ratio of money to attempt to earn through crime relative to that spent to train. defaults to 1 */
   earningsRatio?: number
+  /** whether to skip committing crime to offset combat training */
+  skipCrime?: boolean
   /** whether to focus on worked jobs/training */
   focus?: boolean
   /** maximum training cycles to go through */
@@ -77,17 +79,18 @@ export async function trainCombatSkills(ns: NS, params: CombatTrainingParams) {
       ns.print(`Stats have reached the desired threshold of ${statThreshold}, stopping`);
     }
 
-    // each cycle, earn some money back with crime
-    const interval = 240;
-    const optimalCrime = getOptimalCrime(ns, "moneyPerInterval", interval);
-    let timeToWorkOffGymCost = (gymCostPerCycle / optimalCrime.moneyPerSecond) * earningsRatio * 1000;
-    timeToWorkOffGymCost = Math.max(interval, timeToWorkOffGymCost);
-    let secondsToWorkOffGymCost = timeToWorkOffGymCost / 1000;
-    ns.singularity.commitCrime(optimalCrime.crimeName, focus);
-    ns.print(`Doing crime ${optimalCrime.crimeName} for ${secondsToWorkOffGymCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}s to earn \$${(optimalCrime.moneyPerSecond * secondsToWorkOffGymCost).toLocaleString(undefined, {maximumFractionDigits: 2})}`)
-    
-    // work at the crime for as long as we expect to need to to pay off the cost of the gym
-    await ns.sleep(timeToWorkOffGymCost);
+    if(!params.skipCrime) {
+      // each cycle, earn some money back with crime
+      const interval = 240;
+      const optimalCrime = getOptimalCrime(ns, "moneyPerInterval", interval);
+      let timeToWorkOffGymCost = (gymCostPerCycle / optimalCrime.moneyPerSecond) * earningsRatio * 1000;
+      timeToWorkOffGymCost = Math.max(interval, timeToWorkOffGymCost);
+      let secondsToWorkOffGymCost = timeToWorkOffGymCost / 1000;
+      ns.singularity.commitCrime(optimalCrime.crimeName, focus);
+      ns.print(`Doing crime ${optimalCrime.crimeName} for ${secondsToWorkOffGymCost.toLocaleString(undefined, { maximumFractionDigits: 2 })}s to earn \$${(optimalCrime.moneyPerSecond * secondsToWorkOffGymCost).toLocaleString(undefined, {maximumFractionDigits: 2})}`)
+      // work at the crime for as long as we expect to need to to pay off the cost of the gym
+      await ns.sleep(timeToWorkOffGymCost);
+    }
 
     cycles++;
   }
