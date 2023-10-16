@@ -31,11 +31,11 @@ export interface CombatTrainingParams {
 
 /** @param ns */
 export async function main(ns: NS) {
-  let scriptFlags = ns.flags([["gym", "powerhouse gym"], ["statThreshold", 500], ["focus", false], ["earningsRatio", 1.0]]);
+  let scriptFlags = ns.flags([["gym", "powerhouse gym"], ["threshold", 500], ["focus", false], ["ratio", 1.0]]);
   const gymToUse = String(scriptFlags.gym);
-  const statThreshold = Number(scriptFlags.statThreshold);
+  const statThreshold = Number(scriptFlags.threshold);
   const focus = Boolean(scriptFlags.focus);
-  const earningsRatio = Number(scriptFlags.earningsRatio);
+  const earningsRatio = Number(scriptFlags.ratio);
 
   await trainCombatSkills(ns, {
       gymToUse: gymToUse as TrainingGym,
@@ -64,13 +64,17 @@ export async function trainCombatSkills(ns: NS, params: CombatTrainingParams) {
 
   while (cycles < maxCycles) {
     ns.print(`Working out for ${CombatStats.length * secondsToTrainStat}s`);
+    let player = ns.getPlayer();
+    
     for (let i = 0; i < CombatStats.length; i++) {
-      let statToTrain = CombatStats[i];
-      ns.singularity.gymWorkout(gymToUse, statToTrain, focus);
-      await ns.sleep(timeToTrainStat);
+      if(player.skills[CombatStats[i]] < statThreshold) {
+        let statToTrain = CombatStats[i];
+        ns.singularity.gymWorkout(gymToUse, statToTrain, focus);
+        await ns.sleep(timeToTrainStat);
+      }
     }
 
-    let player = ns.getPlayer();
+    
     let statsMeetThreshold = player.skills.agility > statThreshold &&
       player.skills.defense > statThreshold &&
       player.skills.dexterity > statThreshold &&
@@ -93,5 +97,11 @@ export async function trainCombatSkills(ns: NS, params: CombatTrainingParams) {
     }
 
     cycles++;
+
+    // short sleep to avoid any risk of infinite loops,
+    // since every other sleep is conditional
+    // it should break in any case that would lead to that 
+    // before an infinite, but this is just-in-case it doesn't
+    await ns.sleep(500);
   }
 }

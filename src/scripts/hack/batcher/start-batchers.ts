@@ -8,7 +8,10 @@ const MinMoneyThreshold = 500000;
 // 2048 on home could run up to 290 threads
 // approx. ratio is 2048/290 = 7, so ~7GB total per hack thread
 // ran into occasional issues with 7, so bumped to 7.2
-const DesiredRamPerHackThread = 7.2;
+const DesiredRamPerHackThread = 10;
+// over-provisioned batchers empty the server they're targeting then can't effectively regrow it
+// max out the batch size at ~300 threads to prevent this
+const MaxBatcherThreads = 300;
 const MinutesPerBatchCheckCycle = 1;
 
 const BatcherPath = "scripts/hack/batcher/batcher.js"
@@ -54,26 +57,27 @@ export async function startBatchers(ns: NS, useHome: boolean, startFresh: boolea
 
 
     for (const hostname of hosts) {
-      if(!hostToTargetServer.has(hostname)) {
-        const server = serversByMaxEarning[batcherCount % serversByMaxEarning.length];
-        hostToTargetServer.set(hostname, server);
-        
-        // if this is the first time we're running against this server
-        // from this instance of start-batchers,
-        // kill the existing batcher so we can refresh it
-        ns.killall(hostname)
-      }
-
-      const server = hostToTargetServer.get(hostname);
-
+      const server = serversByMaxEarning[batcherCount % serversByMaxEarning.length];
       const runningBatcherProcess = ns.ps(hostname).filter(process => process.filename.includes(BatcherPath));
       ns.print(runningBatcherProcess.length);
       if(runningBatcherProcess.length == 0) {
         ns.print(`Bootstrapping ${hostname}`);
         bootstrapServer(ns, hostname);
-        ns.print(`Running a batcher against ${server.hostname} from ${hostname}`);
         const hackThreads = Math.floor(ns.getServerMaxRam(hostname) / DesiredRamPerHackThread);
-        ns.exec(BatcherPath, hostname, { threads: 1 }, "--target", server.hostname, "--hackThreads", hackThreads);
+        if(hackThreads <= MaxBatcherThreads) {
+          ns.print(`Running a batcher against ${server.hostname} from ${hostname}`);
+        
+          ns.exec(BatcherPath, hostname, { threads: 1 }, "--target", server.hostname, "--hackThreads", hackThreads);
+        } else {
+          // we've got too many threads to run only one batcher, instead run however many maxed out batchers we can on it
+          for(let threadsLeft = hackThreads; threadsLeft > 50; threadsLeft -= Math.min(MaxBatcherThreads * 2, threadsLeft)) {
+            const threadsForProcess = Math.min(MaxBatcherThreads, threadsLeft);
+            const toHack = serversByMaxEarning[batcherCount % serversByMaxEarning.length];
+            ns.exec(BatcherPath, hostname, { threads: 1 }, "--target", toHack.hostname, "--hackThreads", threadsForProcess);
+            batcherCount++;
+          }
+        }
+        
         batcherCount++;
       } else {
         ns.print(`Found running batcher process: ${JSON.stringify(runningBatcherProcess)}, skipping`)

@@ -6,6 +6,9 @@ import { ActionScriptsDirectory, SecurityDecreaseForWeaken, SecurityIncreaseForH
 const HackThreads = 290;
 const DelayBetweenSteps = 100;
 
+// 10 minutes
+const PrepareInterval = 10 * 60 * 1000;
+
 const WeakenScriptLocation = `${ActionScriptsDirectory}weaken.js`;
 const GrowScriptLocation = `${ActionScriptsDirectory}grow.js`;
 const HackScriptLocation = `${ActionScriptsDirectory}hack.js`;
@@ -53,9 +56,8 @@ export async function main(ns: NS) {
 export async function runBatching(ns: NS, target: string, cores: number, hackThreads: number=HackThreads) {
     let serverLastPreparedTime = Date.now();
     let hostname = ns.getHostname();
-    let oneHour = 60 * 60 * 1000;
     while(true) {
-        if(Date.now() - serverLastPreparedTime >= oneHour) {
+        if(Date.now() - serverLastPreparedTime >= PrepareInterval) {
             // periodically re-run the prepare script in case there's any drift
             // with imperfect offsets causing the server to not sit at max money/min sec as it should for batching.
             await prepareServerForBatching(ns, target, cores);
@@ -90,14 +92,14 @@ export async function runBatching(ns: NS, target: string, cores: number, hackThr
             threads: Math.ceil(secIncreaseForHack / SecurityDecreaseForWeaken),
             runtime: timeToWeaken,
         };
-        batchUsedRam += hack.threads * ns.getScriptRam(weakenForHack.script);
+        batchUsedRam += weakenForHack.threads * ns.getScriptRam(weakenForHack.script);
         // grow
         const grow = {
             script: GrowScriptLocation,
             threads: getGrowthThreads(ns, server, player, cores, 1000, moneyAfterHack),
             runtime: timeToGrow
         };
-        batchUsedRam += hack.threads * ns.getScriptRam(grow.script);
+        batchUsedRam += grow.threads * ns.getScriptRam(grow.script);
         let secIncreaseForGrow = ns.growthAnalyzeSecurity(grow.threads);
         // weaken to offset grow
         const weakenForGrow = {
@@ -105,7 +107,7 @@ export async function runBatching(ns: NS, target: string, cores: number, hackThr
             threads: Math.ceil(secIncreaseForGrow / SecurityDecreaseForWeaken),
             runtime: timeToWeaken
         }
-        batchUsedRam += hack.threads * ns.getScriptRam(weakenForGrow.script);
+        batchUsedRam += weakenForGrow.threads * ns.getScriptRam(weakenForGrow.script);
 
         if(batchUsedRam > availableRam) {
             ns.print(`Not enough RAM to run batch. Batch requires ${batchUsedRam}GB, but only ${availableRam}GB of RAM is available.`);

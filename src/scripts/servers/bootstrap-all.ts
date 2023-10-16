@@ -12,5 +12,4 @@ export function bootstrapAllServers(ns: NS) {
     for(const server of servers) {
         bootstrapServer(ns, server);
     }
-    
 }

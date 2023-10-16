@@ -8,9 +8,9 @@ const TrainingTimePerStat = 30 * 1000;
 
 
 export async function main(ns: NS) {
-    const scriptFlags = ns.flags([["focus", false], ["statThreshold", Infinity]])
+    const scriptFlags = ns.flags([["focus", false], ["threshold", Infinity]])
     const focus = Boolean(scriptFlags.focus);
-    const statThreshold = Number(scriptFlags.statThreshold);
+    const statThreshold = Number(scriptFlags.threshold);
     await trainEverything(ns, statThreshold, focus);
 }
 
