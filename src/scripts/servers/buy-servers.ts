@@ -42,6 +42,16 @@ export async function waitAndBuyServers(ns: NS, ram: number, utilServerRam: numb
     // util server exists, but we aren't running on it. Switch to it.
     ns.exec("scripts/servers/buy-servers.js", UtilServerName, { threads: 1 }, ram);
     return;
+  } else {
+    // stop the start-batchers process on "home" and start it on the util server;
+    const startBatchersOnHome = ns.ps("home").filter(program => program.filename.includes("start-batchers.js"))
+    if(startBatchersOnHome.length > 0) {
+      startBatchersOnHome.forEach(program => ns.kill(program.pid));
+    }
+    const startBatchersOnUtil = ns.ps(UtilServerName).filter(program => program.filename.includes("start-batchers.js"))
+    if(startBatchersOnUtil.length == 0) {
+      ns.exec(StartBatchersScript, UtilServerName, {threads: 1}, "--fresh");
+    }
   }
 
   for (let i = existingServers.length; i < ns.getPurchasedServerLimit();) {

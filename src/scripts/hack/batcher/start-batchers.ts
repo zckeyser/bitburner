@@ -2,6 +2,7 @@ import { NS, Player, Server } from 'Bitburner';
 import { scanNetwork } from '/lib/servers/scan-servers';
 import { getHackablePorts } from 'lib/ports.js';
 import { bootstrapServer } from 'scripts/servers/bootstrap-server';
+import { TermLogger } from '/lib/Helpers';
 
 
 const MinMoneyThreshold = 500000;
@@ -33,7 +34,7 @@ export async function main(ns: NS) {
 export async function startBatchers(ns: NS, useHome: boolean, startFresh: boolean) {
   const serverNames = scanNetwork(ns)[0];
   const servers = serverNames.map(ns.getServer);
-  const hostToTargetServer = new Map();
+  const logger = new TermLogger(ns);
   let batcherCount = 0;
 
   const player = ns.getPlayer();
@@ -43,7 +44,8 @@ export async function startBatchers(ns: NS, useHome: boolean, startFresh: boolea
     // grab purchased servers with "batch" prefixes, which denote they're to be used for batching
     const batchServers = ns.getPurchasedServers().filter(s => s.startsWith("batch"));
     const hosts = useHome ? ["home", ...batchServers] : batchServers;
-    hosts.forEach(s => ns.killall(s));
+    // kill all batcher processes on each host
+    hosts.forEach(s => ns.ps(s).filter(p => p.filename.includes(BatcherPath)).forEach(p => ns.kill(p.pid)));
   }
 
   while (true) {
@@ -53,8 +55,12 @@ export async function startBatchers(ns: NS, useHome: boolean, startFresh: boolea
       .reverse();
     // grab purchased servers with "batch" prefixes, which denote they're to be used for batching
     const batchServers = ns.getPurchasedServers().filter(s => s.startsWith("batch"));
-    const hosts = useHome ? ["home", ...batchServers] : batchServers;
+    const hosts = (useHome ? ["home", ...batchServers] : batchServers).filter(host => ns.getServerMaxRam(host) >= 1024);
 
+    if(hosts.length == 0) {
+      logger.warn("No batch hosts with enough RAM to run a batcher, exiting start-batchers.js");
+      return;
+    }
 
     for (const hostname of hosts) {
       const server = serversByMaxEarning[batcherCount % serversByMaxEarning.length];

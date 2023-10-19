@@ -5,6 +5,7 @@ import { ActionScriptsDirectory, SecurityDecreaseForWeaken, SecurityIncreaseForH
 // TODO: better way to determine how many threads to hack with?
 const HackThreads = 290;
 const DelayBetweenSteps = 100;
+const MinHackThreads = 50;
 
 // 10 minutes
 const PrepareInterval = 10 * 60 * 1000;
@@ -111,7 +112,10 @@ export async function runBatching(ns: NS, target: string, cores: number, hackThr
 
         if(batchUsedRam > availableRam) {
             ns.print(`Not enough RAM to run batch. Batch requires ${batchUsedRam}GB, but only ${availableRam}GB of RAM is available.`);
-            await ns.sleep(60000);
+            // this indicates we had too large of a batch size, and couldn't fully offset our current-sized growth
+            // shrink it any try again
+            hackThreads = Math.max(MinHackThreads, hackThreads - 1);
+            await ns.sleep(1000);
             continue;
         }
 

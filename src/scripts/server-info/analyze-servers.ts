@@ -1,9 +1,9 @@
 import {NS, Server} from 'Bitburner'
 
 // NOTE: these are js files so that they get JSON formatting + highlighting
-const FullOutputFile = "servers/fullServerInfo.js";
-const ImportantOutputFile = "servers/importantServerInfo.js";
-const ServerAggregateStatsOutputFile = "servers/aggregateServerStats.js"
+const FullOutputFile = "data/fullServerInfo.js";
+const ImportantOutputFile = "data/importantServerInfo.js";
+const ServerAggregateStatsOutputFile = "data/aggregateServerStats.js"
 
 
 /**

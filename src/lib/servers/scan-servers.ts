@@ -4,15 +4,15 @@ import {NS} from "Bitburner"
 export async function main(ns: NS) {
   let hostname = ns.getHostname();
   let serversFound = scanNetwork(ns);
-  await printArray(ns, serversFound[0]);
-  if (ns.fileExists("servers/serverList.js")) {
-    ns.mv(hostname, "servers/serverList.js", "servers/backup/serverList.js");
+  printArray(ns, serversFound[0]);
+  if (ns.fileExists("data/serverList.js")) {
+    ns.mv(hostname, "data/serverList.js", "data/backup/serverList.js");
   }
-  if(ns.fileExists("servers/serverMap.js")) {
-    ns.mv(hostname, "servers/serverMap.js", "servers/backup/serverMap.js");
+  if(ns.fileExists("data/serverMap.js")) {
+    ns.mv(hostname, "data/serverMap.js", "data/backup/serverMap.js");
   }
-  await ns.write("servers/serverList.js", `export const ServerList = ${JSON.stringify(serversFound[0], null, 2)};`);
-  await ns.write("servers/serverMap.js", `export const ServerMap = ${JSON.stringify(serversFound[1], null, 2)};`);
+  ns.write("data/serverList.js", `export const ServerList = ${JSON.stringify(serversFound[0], null, 2)};`);
+  ns.write("data/serverMap.js", `export const ServerMap = ${JSON.stringify(serversFound[1], null, 2)};`);
 }
 
 
@@ -38,6 +38,6 @@ export function scanNetwork(ns: NS, device: string = ns.getHostname(), maxDepth:
 /**
  * @param ns
  */
-async function printArray(ns: NS, serverList: string[]) {
+function printArray(ns: NS, serverList: string[]) {
   ns.tprint(serverList.join("|"));
 }
