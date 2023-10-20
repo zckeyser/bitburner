@@ -3,6 +3,7 @@ import { scanNetwork } from '/lib/servers/scan-servers';
 import { getHackablePorts } from 'lib/ports.js';
 import { bootstrapServer } from 'scripts/servers/bootstrap-server';
 import { TermLogger } from '/lib/Helpers';
+import { getExpectedServerEarnings } from '/lib/servers/optimized-servers';
 
 
 const MinMoneyThreshold = 500000;
@@ -48,8 +49,10 @@ export async function startBatchers(ns: NS, useHome: boolean, startFresh: boolea
     hosts.forEach(s => ns.ps(s).filter(p => p.filename.includes(BatcherPath)).forEach(p => ns.kill(p.pid)));
   }
 
+  const serverValueFunction = ns.fileExists("Formulas.exe") ? getExpectedServerEarnings : (ns: NS, s: Server, p: Player) => getServerMaxMoneyToSecurityRatio(s);
+
   while (true) {
-    const serversByMaxEarning = servers.sort((a, b) => (getServerMaxMoneyToSecurityRatio(a) - getServerMaxMoneyToSecurityRatio(b)))
+    const serversByMaxEarning = servers.sort((a, b) => (serverValueFunction(ns, a, player) - serverValueFunction(ns, b, player)))
       .filter((server) => (server.moneyMax || 0) > 0)
       .filter((server) => isHackable(ns, server, player))
       .reverse();

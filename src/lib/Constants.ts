@@ -446,6 +446,11 @@ export const Universities = [
 ]
 
 export const ActionScriptsDirectory = "scripts/hack/actions/";
+export const WeakenScriptLocation = `${ActionScriptsDirectory}weaken.js`;
+export const GrowScriptLocation = `${ActionScriptsDirectory}grow.js`;
+export const HackScriptLocation = `${ActionScriptsDirectory}hack.js`;
+export const InitScriptLocation = `${ActionScriptsDirectory}init.js`;
+
 export const SecurityIncreaseForHack = 0.002;
 export const SecurityDecreaseForWeaken = 0.05;
 

@@ -1,6 +1,9 @@
 import { NS } from "Bitburner";
 
 export async function main(ns: NS) {
+    ns.disableLog("sleep");
+    ns.disableLog("getServerMoneyAvailable");
+
     while(ns.getServerMoneyAvailable("home") < 200000) {
         await ns.sleep(10000);
     }
