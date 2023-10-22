@@ -3,7 +3,7 @@ import { NS } from "Bitburner";
 export async function main(ns: NS) {
     const input = String(ns.args[0]);
 
-    ns.tprint(lempelZivDecompress(input, ns));
+    ns.tprint(lempelZivDecompress(input));
 }
 
 
@@ -30,18 +30,13 @@ Example: decoding '5aaabb450723abb' chunk-by-chunk
     5aaabb45072      ->  aaabbaaababababa
     5aaabb450723abb  ->  aaabbaaababababaabb
  */
-
-/**
- * 5KpAOU -> KpAOU
- * 5KpAOU94 -> KpAOU
- */
 /**
  * 
  * @param s 
  * @returns 
  */
-export function lempelZivDecompress(s: string, ns: NS): string {
-    let decompressed = ''
+export function lempelZivDecompress(s: string): string {
+    let decompressed = '';
     // used to alternate between copy chunks and reference chunks
     // start with false because the first chunk is a copy, and this gets flipped when we start a chunk
     let isCopy = false;
@@ -51,17 +46,13 @@ export function lempelZivDecompress(s: string, ns: NS): string {
 
     for(const char of s) {
         if(chunkStart) {
-            ns.tprint(`decompressed after new chunk: ${decompressed}`)
             isCopy = !isCopy;
             chunkPos = 0;
             chunkStart = false;
             chunkSize = Number(char);
             // if chunk size is 0, immediately skip this chunk type
             if(chunkSize === 0) {
-                ns.tprint(`Skipping chunk of size 0 which would have been a ${isCopy ? 'copy' : 'reference'} chunk`)
                 chunkStart = true;
-            } else {
-                ns.tprint(`Starting chunk of size ${chunkSize} which is a ${isCopy ? 'copy' : 'reference'} chunk`);
             }
         } else if(isCopy) {
             // copy chunk

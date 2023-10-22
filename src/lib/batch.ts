@@ -53,9 +53,9 @@ export function getBatch(ns: NS, host: Server, target: Server, player: Player, h
         grow,
         weakenForGrow
     ];
-    applyDelaysForBatch(batch);
+    const delayedBatch = getBatchWithDelays(batch);
 
-    return batch;
+    return delayedBatch;
 }
 
 export function getBatchThreads(ns: NS, host: Server, target: Server, player: Player, hackThreads: number) {
@@ -72,9 +72,9 @@ export function getBatchThreads(ns: NS, host: Server, target: Server, player: Pl
         };
     }
 
-    const bitNodeMultipliers = ns.getBitNodeMultipliers();
+    // const bitNodeMultipliers = ns.getBitNodeMultipliers();
 
-    const weakenSecDecrease = SecurityDecreaseForWeaken * bitNodeMultipliers.ServerWeakenRate;
+    const weakenSecDecrease = SecurityDecreaseForWeaken;
     const moneyAfterHack = target.moneyMax - moneyStolenByHack;
 
     const weakenForHackThreads = Math.ceil(secIncreaseForHack / weakenSecDecrease);
@@ -100,12 +100,12 @@ export function getBatchRamUsage(ns: NS, batch: ScriptRunSpec[]) {
  * applies delays to script run specs to make them finish in the order that they are in in the array
  * 
  * used to make items in a batch finish in the correct order despite different runtimes for action types
- * @param scriptsToRun 
+ * @param batch 
  * @returns modified array of script run specs with delays included
  */
-function applyDelaysForBatch(scriptsToRun: ScriptRunSpec[]): ScriptRunSpec[] {
+function getBatchWithDelays(batch: ScriptRunSpec[]): ScriptRunSpec[] {
     // shallow copy the script run specs to avoid modifying passed-in reference
-    let delayedScripts = scriptsToRun.map((scriptRun) => {return {...scriptRun}});
+    const delayedScripts: ScriptRunSpec[] = batch.map((scriptRun) => {return {...scriptRun}});
 
     // for now, do it the naive way
     const [hack, weakenForHack, grow, weakenForGrow] = delayedScripts;

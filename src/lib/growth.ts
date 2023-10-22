@@ -77,7 +77,6 @@ export function estimateGrowth(server: Server, threads: number, player: Player, 
     adjGrowthRate = ServerMaxGrowthRate;
   }
   const serverGrowthPercentage = server.serverGrowth / 100;
-  // TODO: wtf is this; https://bitburner-beta.readthedocs.io/en/latest/netscript/advancedfunctions/getBitNodeMultipliers.html
   const bitNodeMultiplier = 1;
   const numServerGrowthCyclesAdjusted =
     numServerGrowthCycles * serverGrowthPercentage * bitNodeMultiplier;

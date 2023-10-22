@@ -16,7 +16,7 @@ Lempel-Ziv (LZ) compression is a data compression technique which encodes data u
 For both chunk types, a length of 0 instead means the chunk ends immediately, and the next character is the start of a new chunk. The two chunk types alternate, starting with type 1, and the final chunk may be of either type.
 
 You are given the following input string:
-    F1bbbbbbbbbbUau1bbbD4bbbkALLLLLLLLL6M6KL6M6KL6MU6KL6MUUPrMUUDzw2xMUUDzwgykZ
+    IZuDIOBm3ph0tXrm3ph0tXGrm3ph01X8ph01X8ph01XYvNNNXYL876h048Uq8Uq8
 Encode it using Lempel-Ziv encoding with the minimum possible output length.
 
 Examples (some have other possible encodings of minimal length):
@@ -28,6 +28,4 @@ Examples (some have other possible encodings of minimal length):
     aaaaaaaaaaaa    ->  3aaa91
     aaaaaaaaaaaaa   ->  1a91031
     aaaaaaaaaaaaaa  ->  1a91041
-
-
  */

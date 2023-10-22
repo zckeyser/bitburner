@@ -632,3 +632,28 @@ solvers["Compression I: RLE Compression"] = (data) => {
     }
     return compression;
 }
+
+// these are actually mine
+
+/**
+ * 
+ * @param {string[]} data 
+ * @returns 
+ */
+solvers["Encryption II: Vigenère Cipher"] = (data) => {
+    const [plaintext, keyword] = data;
+    let keywordIndex = 0;
+
+    return plaintext.split('').map((c) => {
+        const offset = keyword.charCodeAt(keywordIndex) - UppercaseAlphaOffset;
+        const charCode = c.charCodeAt(0);
+        // skip spaces
+        if(charCode == 32) {
+            return c;
+        }
+        const newCharCode = (((charCode - UppercaseAlphaOffset) + offset) % 26) + UppercaseAlphaOffset;
+        keywordIndex = ((keywordIndex + 1) % keyword.length);
+        return String.fromCharCode(newCharCode);
+    }).join('');
+}
+
