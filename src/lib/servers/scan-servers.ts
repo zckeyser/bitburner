@@ -24,6 +24,7 @@ export async function main(ns: NS) {
  * @returns {[string[], Object]} - A tuple including an array of discovered devices & a tree of the network
  */
 export function scanNetwork(ns: NS, device: string = ns.getHostname(), maxDepth: number = Infinity): [string[], Object] {
+  ns.disableLog("scan");
   let discovered = [device];
   function scan(device: string, depth: number = 1) {
     if (depth > maxDepth) return {};

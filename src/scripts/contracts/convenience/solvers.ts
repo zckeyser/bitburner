@@ -4,7 +4,9 @@
  */
 export const solvers = {};
 
-solvers["Algorithmic Stock Trader I"] = (data) => {
+const AsciiUppercaseOffset = 65;
+
+solvers["Algorithmic Stock Trader I"] = (data: number[]) => {
     let maxCur = 0;
     let maxSoFar = 0;
     for (let i = 1; i < data.length; ++i) {
@@ -15,7 +17,7 @@ solvers["Algorithmic Stock Trader I"] = (data) => {
     return maxSoFar;
 };
 
-solvers["Algorithmic Stock Trader II"] = (data) => {
+solvers["Algorithmic Stock Trader II"] = (data: number[]) => {
     let profit = 0;
     for (let p = 1; p < data.length; ++p) {
         profit += Math.max(data[p] - data[p - 1], 0);
@@ -24,7 +26,7 @@ solvers["Algorithmic Stock Trader II"] = (data) => {
     return profit;
 };
 
-solvers["Algorithmic Stock Trader III"] = (data) => {
+solvers["Algorithmic Stock Trader III"] = (data: number[]) => {
     let hold1 = Number.MIN_SAFE_INTEGER;
     let hold2 = Number.MIN_SAFE_INTEGER;
     let release1 = 0;
@@ -39,12 +41,12 @@ solvers["Algorithmic Stock Trader III"] = (data) => {
     return release2;
 };
 
-solvers["Algorithmic Stock Trader IV"] = (data) => {
-    const k = (data[0]);
-    const prices = (data[1]);
+solvers["Algorithmic Stock Trader IV"] = (data: (number[]|number)[]) => {
+    const k: number = data[0] as number;
+    const prices: number[] = data[1] as number[];
 
     const len = prices.length;
-    if (len < 2) { return (parseInt(ans) === 0); }
+    if (len < 2) { return 0; }
     if (k > len / 2) {
         let res = 0;
         for (let i = 1; i < len; ++i) {
@@ -54,8 +56,8 @@ solvers["Algorithmic Stock Trader IV"] = (data) => {
         return res;
     }
 
-    const hold = [];
-    const rele = [];
+    const hold: number[] = [];
+    const rele: number[] = [];
     hold.length = k + 1;
     rele.length = k + 1;
     for (let i = 0; i <= k; ++i) {
@@ -63,7 +65,7 @@ solvers["Algorithmic Stock Trader IV"] = (data) => {
         rele[i] = 0;
     }
 
-    let cur;
+    let cur: number;
     for (let i = 0; i < len; ++i) {
         cur = prices[i];
         for (let j = k; j > 0; --j) {
@@ -75,7 +77,7 @@ solvers["Algorithmic Stock Trader IV"] = (data) => {
     return rele[k];
 };
 
-solvers["Array Jumping Game"] = (data) => {
+solvers["Array Jumping Game"] = (data: number[]) => {
     const n = data.length;
     let i = 0;
     for (let reach = 0; i < n && i <= reach; ++i) {
@@ -91,7 +93,7 @@ solvers["Array Jumping Game"] = (data) => {
     }
 };
 
-solvers["Array Jumping Game II"] =  (data) => {
+solvers["Array Jumping Game II"] =  (data: number[]) => {
     const n = data.length;
     let reach = 0;
     let jumps = 0;
@@ -114,10 +116,10 @@ solvers["Array Jumping Game II"] =  (data) => {
     return jumps;
 };
 
-solvers["Unique Paths in a Grid I"] = (data) => {
+solvers["Unique Paths in a Grid I"] = (data: number[]) => {
     const n = data[0]; // Number of rows
     const m = data[1]; // Number of columns
-    const currentRow = [];
+    const currentRow: number[] = [];
     currentRow.length = n;
 
     for (let i = 0; i < n; i++) {
@@ -132,13 +134,13 @@ solvers["Unique Paths in a Grid I"] = (data) => {
     return currentRow[n - 1];
 };
 
-solvers["Merge Overlapping Intervals"] = (data) => {
+solvers["Merge Overlapping Intervals"] = (data: number[][]) => {
     const intervals = data.slice();
     intervals.sort((a, b) => {
         return a[0] - b[0];
     });
 
-    const result = [];
+    const result: number[][] = [];
     let start = intervals[0][0];
     let end = intervals[0][1];
     for (const interval of intervals) {
@@ -152,9 +154,9 @@ solvers["Merge Overlapping Intervals"] = (data) => {
     }
     result.push([start, end]);
 
-    function convert2DArrayToString(arr){
-        const components = [];
-        arr.forEach((e) => {
+    function convert2DArrayToString(arr: number[][]){
+        const components: string[] = [];
+        arr.forEach((e: number[]) => {
             let s= e.toString();
             s = ["[", s, "]"].join("");
             components.push(s);
@@ -167,8 +169,8 @@ solvers["Merge Overlapping Intervals"] = (data) => {
     return sanitizedResult;
 };
 
-solvers["Generate IP Addresses"] = (data, ans) => {
-    const ret = [];
+solvers["Generate IP Addresses"] = (data: string, ans: string[]) => {
+    const ret: string[] = [];
     for (let a = 1; a <= 3; ++a) {
         for (let b = 1; b <= 3; ++b) {
             for (let c = 1; c <= 3; ++c) {
@@ -195,7 +197,7 @@ solvers["Generate IP Addresses"] = (data, ans) => {
     return ret;
 };
 
-solvers["Sanitize Parentheses in Expression"] = (data) => {
+solvers["Sanitize Parentheses in Expression"] = (data: string) => {
     let left = 0;
     let right = 0;
     const res = [];
@@ -236,8 +238,8 @@ solvers["Sanitize Parentheses in Expression"] = (data) => {
     return res;
 };
 
-solvers["Unique Paths in a Grid II"] = (data) => {
-    const obstacleGrid = [];
+solvers["Unique Paths in a Grid II"] = (data: number[][]) => {
+    const obstacleGrid: number[][] = [];
     obstacleGrid.length = data.length;
     for (let i = 0; i < obstacleGrid.length; ++i) {
         obstacleGrid[i] = data[i].slice();
@@ -342,7 +344,7 @@ solvers["Find All Valid Math Expressions"] = (data) => {
 };
 
 solvers["Spiralize Matrix"] = (data) => {
-    const spiral = [];
+    const spiral: number[] = [];
     const m = data.length;
     const n = data[0].length;
     let u = 0;
@@ -396,7 +398,7 @@ solvers["Minimum Path Sum in a Triangle"] = (data) => {
 
 solvers["Shortest Path in a Grid"] = (data) => {
     function findWay(position, end, data) {
-        var queue = [];
+        var queue: any[] = [];
 
         data[position[0]][position[1]] = 1;
         queue.push([position]); // store a path, not just a position
@@ -488,7 +490,7 @@ solvers["HammingCodes: Integer to encoded Binary"] = (value) => {
     }, [])) {
         // that reduce will result in an array of index numbers where the "x" is placed
         const _tempcount = index + 1; // set the "stepsize" for the parityBit
-        const _temparray = []; // temporary array to store the extracted bits
+        const _temparray: string[] = []; // temporary array to store the extracted bits
         const _tempdata = [..._build]; // only work with a copy of the _build
         while (_tempdata[index] !== undefined) {
         // as long as there are bits on the starting index, do "cut"
@@ -504,8 +506,8 @@ solvers["HammingCodes: Integer to encoded Binary"] = (value) => {
 
 solvers["HammingCodes: Encoded Binary to Integer"] = (_data) => {
     //check for altered bit and decode
-    const _build = _data.split(""); // ye, an array for working, again
-    const _testArray = []; //for the "truthtable". if any is false, the data has an altered bit, will check for and fix it
+    const _build: string[] = _data.split(""); // ye, an array for working, again
+    const _testArray: boolean[] = []; //for the "truthtable". if any is false, the data has an altered bit, will check for and fix it
     const _sumParity = Math.ceil(Math.log2(_data.length)); // sum of parity for later use
     const count = (arr, val) =>
         arr.reduce((a, v) => (v === val ? a + 1 : a), 0);
@@ -518,7 +520,7 @@ solvers["HammingCodes: Encoded Binary to Integer"] = (_data) => {
         const _tempIndex = Math.pow(2, i) - 1; // get the parityBits Index
         const _tempStep = _tempIndex + 1; // set the stepsize
         const _tempData = [..._build]; // get a "copy" of the build-data for working
-        const _tempArray = []; // init empty array for "testing"
+        const _tempArray: string[] = []; // init empty array for "testing"
         while (_tempData[_tempIndex] != undefined) {
         // extract from the copied data until the "starting" index is undefined
         const _temp = [..._tempData.splice(_tempIndex, _tempStep * 2)]; // extract 2*stepsize
@@ -645,15 +647,36 @@ solvers["Encryption II: Vigenère Cipher"] = (data) => {
     let keywordIndex = 0;
 
     return plaintext.split('').map((c) => {
-        const offset = keyword.charCodeAt(keywordIndex) - UppercaseAlphaOffset;
+        const offset = keyword.charCodeAt(keywordIndex) - AsciiUppercaseOffset;
         const charCode = c.charCodeAt(0);
         // skip spaces
         if(charCode == 32) {
             return c;
         }
-        const newCharCode = (((charCode - UppercaseAlphaOffset) + offset) % 26) + UppercaseAlphaOffset;
+        const newCharCode = (((charCode - AsciiUppercaseOffset) + offset) % 26) + AsciiUppercaseOffset;
         keywordIndex = ((keywordIndex + 1) % keyword.length);
         return String.fromCharCode(newCharCode);
     }).join('');
 }
 
+solvers["Encryption I: Caesar Cipher"] = (data: string|number[]) => {
+    const cipherText = data[0] as string;
+    const cipherKey = data[1] as number;
+
+    const cipherTextAscii = cipherText.split('').map(c => c.charCodeAt(0));
+    const cipherTextShifted = cipherTextAscii.map(charCode => {
+        // shift alpohabetic characters
+        if (charCode >= AsciiUppercaseOffset && charCode < AsciiUppercaseOffset + 26) {
+            const charOffset = (charCode - AsciiUppercaseOffset);
+            const minusShift = charOffset - cipherKey;
+            const rotated = (26 + minusShift) % 26;
+            const newChar = rotated + AsciiUppercaseOffset;
+            return newChar;
+        }
+        // leave non alphabetic characters the same (e.g. whitespace)
+        return charCode;
+    });
+    const decodedCipher = cipherTextShifted.reduce((acc, c) => acc + String.fromCharCode(c), "")
+
+    return decodedCipher;
+}

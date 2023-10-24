@@ -1,15 +1,27 @@
-import {solvers} from "contracts/solvers.js";
+import { NS } from "Bitburner";
+import { solvers } from "scripts/contracts/convenience/solvers";
 
-export async function main(ns) {
+// 10s
+const SolveTimeout = 10000;
+
+export interface ContractInfo {
+    host: string
+    file: string
+    type: string
+    triesRemaining: number
+}
+
+
+export async function main(ns: NS) {
     ns.disableLog("scan");
     ns.disableLog("sleep");
     while (true) {
         await attemptAllContracts(ns);
-        await ns.sleep(60*1000);
+        await ns.sleep(60 * 1000);
     }
 }
 
-export async function attemptAllContracts(ns) {
+export async function attemptAllContracts(ns: NS) {
     const contracts = getContracts(ns);
     ns.print(`Found ${contracts.length} contracts.`);
     for (const contract of contracts) {
@@ -17,8 +29,8 @@ export async function attemptAllContracts(ns) {
     }
 }
 
-export function getContracts(ns) {
-    const contracts = [];
+export function getContracts(ns: NS): ContractInfo[] {
+    const contracts: ContractInfo[] = [];
     for (const host of getAllHosts(ns)) {
         for (const file of ns.ls(host)) {
             if (file.match(/\.cct$/)) {
@@ -35,14 +47,14 @@ export function getContracts(ns) {
     return contracts;
 }
 
-export async function attemptContract(ns, contract) {
+export async function attemptContract(ns: NS, contract: ContractInfo) {
     const solver = solvers[contract.type];
     if (solver) {
-        ns.print("Attempting " +JSON.stringify(contract,null,2));
+        ns.print("Attempting " + JSON.stringify(contract, null, 2));
         const data = ns.codingcontract.getData(contract.file, contract.host);
         try {
-            const solution = await runInWebWorker(solver, [data]);
-            const reward = ns.codingcontract.attempt(solution, contract.file, contract.host, {returnReward:true});
+            const solution: any = await runInWebWorker(solver, [data]);
+            const reward = ns.codingcontract.attempt(solution, contract.file, contract.host);
             if (reward) {
                 ns.tprint(`${reward} for solving "${contract.type}" on ${contract.host}`);
                 ns.print(`${reward} for solving "${contract.type}" on ${contract.host}`);
@@ -61,13 +73,13 @@ export async function attemptContract(ns, contract) {
     }
 }
 
-function getAllHosts(ns) {
-    getAllHosts.cache ||= {};
-    const scanned = getAllHosts.cache;
+const hostCache = new Set();
+function getAllHosts(ns: NS) {
+    const scanned = hostCache;
     const toScan = ['home'];
     while (toScan.length > 0) {
         const host = toScan.shift();
-        scanned[host] = true;
+        scanned.add(host);
         for (const nextHost of ns.scan(host)) {
             if (!(nextHost in scanned)) {
                 toScan.push(nextHost);
@@ -78,14 +90,14 @@ function getAllHosts(ns) {
     return allHosts;
 }
 
-async function runInWebWorker(fn, args, maxMs=1000) {
-    return new Promise((resolve, reject)=>{
+async function runInWebWorker(fn: (...args: any[]) => any, args: any[], maxMs = SolveTimeout) {
+    return new Promise((resolve, reject) => {
         let running = true;
-        const worker = makeWorker(fn, (result)=>{
+        const worker = makeWorker(fn, (result: any) => {
             running = false;
             resolve(result);
         });
-        setTimeout(()=>{
+        setTimeout(() => {
             if (running) {
                 reject(`${maxMs} ms elapsed.`);
             }
@@ -95,7 +107,7 @@ async function runInWebWorker(fn, args, maxMs=1000) {
     });
 }
 
-function makeWorker(workerFunction, cb) {
+function makeWorker(workerFunction: (...args: any[]) => any, cb: (result: any) => void) {
     const workerSrc = `
     handler = (${workerFunction});
     onmessage = (e) => {
@@ -103,9 +115,9 @@ function makeWorker(workerFunction, cb) {
         postMessage(result);
     };`;
     const workerBlob = new Blob([workerSrc]);
-    const workerBlobURL = URL.createObjectURL(workerBlob, { type: 'application/javascript; charset=utf-8' });
+    const workerBlobURL = URL.createObjectURL(workerBlob);
     const worker = new Worker(workerBlobURL);
-    worker.onmessage = (e)=>{
+    worker.onmessage = (e) => {
         cb(e.data);
     };
     return worker;

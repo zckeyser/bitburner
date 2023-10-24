@@ -15,7 +15,7 @@ export function getHackThreads(ns: NS, host: Server, target: Server, player: Pla
     maxRamUsage = maxRamUsage ? maxRamUsage : host.maxRam;
 
     if(!ns.fileExists("Formulas.exe")) {
-        throw Error("Can only get hack threads if Formulas.exe is available");
+        ns.print(`WARNING: using estimation, which is not accurate, because Formulas.exe is not available`);
     }
 
     let hackThreads = 1;
