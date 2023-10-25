@@ -3,7 +3,17 @@ import { scanNetwork } from '/lib/servers/scan-servers';
 import { getHackablePorts } from 'lib/ports.js';
 import { bootstrapServer } from 'scripts/servers/bootstrap-server';
 import { TermLogger } from '/lib/Helpers';
-import { getExpectedServerEarnings } from '/lib/servers/optimized-servers';
+
+
+const MinMoneyThreshold = 500000;
+// 2048 on home could run up to 290 threads
+// approx. ratio is 2048/290 = 7, so ~7GB total per hack thread
+// ran into occasional issues with 7, so bumped to 7.2
+const DesiredRamPerHackThread = 10;
+// over-provisioned batchers empty the server they're targeting then can't effectively regrow it
+// max out the batch size at ~300 threads to prevent this
+const MaxBatcherThreads = 300;
+const MinutesPerBatchCheckCycle = 1;
 
 const BatcherPath = "scripts/hack/batcher/batcher.js"
 
@@ -22,10 +32,9 @@ export async function main(ns: NS) {
  * @param startFresh if true, kills all running batcher scripts on batch hosts before starting the cycle
  */
 export async function startBatchers(ns: NS, useHome: boolean, startFresh: boolean) {
-  ns.disableLog("scp");
-  ns.disableLog("sleep");
+  const serverNames = scanNetwork(ns)[0];
+  const servers = serverNames.map(ns.getServer);
   const logger = new TermLogger(ns);
-
   let batcherCount = 0;
 
   const player = ns.getPlayer();
@@ -39,46 +48,50 @@ export async function startBatchers(ns: NS, useHome: boolean, startFresh: boolea
     hosts.forEach(s => ns.ps(s).filter(p => p.filename.includes(BatcherPath)).forEach(p => ns.kill(p.pid)));
   }
 
-  const serverNames = scanNetwork(ns)[0];
-  const servers = serverNames.map(ns.getServer);
-  const serverValueFunction = ns.fileExists("Formulas.exe") ? getExpectedServerEarnings : (ns: NS, s: Server, p: Player) => getServerMaxMoneyToSecurityRatio(s);
-  ns.print(`Server List: ${serverNames}`);
+  while (true) {
+    const serversByMaxEarning = servers.sort((a, b) => (getServerMaxMoneyToSecurityRatio(a) - getServerMaxMoneyToSecurityRatio(b)))
+      .filter((server) => (server.moneyMax || 0) > 0)
+      .filter((server) => isHackable(ns, server, player))
+      .reverse();
+    // grab purchased servers with "batch" prefixes, which denote they're to be used for batching
+    const batchServers = ns.getPurchasedServers().filter(s => s.startsWith("batch"));
+    const hosts = (useHome ? ["home", ...batchServers] : batchServers).filter(host => ns.getServerMaxRam(host) >= 1024);
 
-  const serversByMaxEarning = servers.sort((a, b) => (serverValueFunction(ns, a, player) - serverValueFunction(ns, b, player)))
-    .filter((server) => (server.moneyMax || 0) > 0)
-    .reverse();
-  ns.print(`Sorted server list: ${serversByMaxEarning.map(s => s.hostname)}`);
-  const hackableServers = serversByMaxEarning.filter((server) => isHackable(ns, server, player));
-  if(hackableServers.length === 0) {
-    // foodnstuff is always hackable, requires 0 ports and 1 hacking skill
-    // idk why the array ends up empty sometimes
-    hackableServers.push(ns.getServer("foodnstuff"));
-  }
-  ns.print(`Hackable servers: ${hackableServers.map(s => s.hostname)}`);
-  // grab purchased servers with "batch" prefixes, which denote they're to be used for batching
-  const batchServers = ns.getPurchasedServers().filter(s => s.startsWith("batch"));
-  const hosts = (useHome ? ["home", ...batchServers] : batchServers).filter(host => ns.getServerMaxRam(host) >= 1024);
-
-  if(hosts.length == 0) {
-    logger.warn("No batch hosts with enough RAM to run a batcher, exiting start-batchers.js");
-    return;
-  }
-
-  for (const hostname of hosts) {
-    const server = hackableServers[batcherCount % hackableServers.length];
-    const runningBatcherProcess = ns.ps(hostname).filter(process => process.filename.includes(BatcherPath));
-    ns.print(runningBatcherProcess.length);
-    if(runningBatcherProcess.length === 0 || runningBatcherProcess[0].args[1] !== server.hostname) {
-      ns.print(`Bootstrapping ${hostname}`);
-      bootstrapServer(ns, hostname);
-      ns.print(`Clearing existing batchers against other hosts`);
-      runningBatcherProcess.forEach(p => ns.kill(p.pid));
-      ns.print(`Running batcher on ${hostname} against ${server.hostname}`);
-      ns.exec(BatcherPath, hostname, { threads: 1 }, "--target", server.hostname);
-      batcherCount++;
-    } else {
-      ns.print(`Found running batcher process: ${JSON.stringify(runningBatcherProcess)}, skipping`)
+    if(hosts.length == 0) {
+      logger.warn("No batch hosts with enough RAM to run a batcher, exiting start-batchers.js");
+      return;
     }
+
+    for (const hostname of hosts) {
+      const server = serversByMaxEarning[batcherCount % serversByMaxEarning.length];
+      const runningBatcherProcess = ns.ps(hostname).filter(process => process.filename.includes(BatcherPath));
+      ns.print(runningBatcherProcess.length);
+      if(runningBatcherProcess.length == 0) {
+        ns.print(`Bootstrapping ${hostname}`);
+        bootstrapServer(ns, hostname);
+        const hackThreads = Math.floor(ns.getServerMaxRam(hostname) / DesiredRamPerHackThread);
+        if(hackThreads <= MaxBatcherThreads) {
+          ns.print(`Running a batcher against ${server.hostname} from ${hostname}`);
+        
+          ns.exec(BatcherPath, hostname, { threads: 1 }, "--target", server.hostname, "--hackThreads", hackThreads);
+        } else {
+          // we've got too many threads to run only one batcher, instead run however many maxed out batchers we can on it
+          for(let threadsLeft = hackThreads; threadsLeft > 50; threadsLeft -= Math.min(MaxBatcherThreads * 2, threadsLeft)) {
+            const threadsForProcess = Math.min(MaxBatcherThreads, threadsLeft);
+            const toHack = serversByMaxEarning[batcherCount % serversByMaxEarning.length];
+            ns.exec(BatcherPath, hostname, { threads: 1 }, "--target", toHack.hostname, "--hackThreads", threadsForProcess);
+            batcherCount++;
+          }
+        }
+        
+        batcherCount++;
+      } else {
+        ns.print(`Found running batcher process: ${JSON.stringify(runningBatcherProcess)}, skipping`)
+      }
+    }
+
+    // wait a bit then check for servers w/o batchers again
+    await ns.sleep(MinutesPerBatchCheckCycle * 60 * 1000);
   }
 }
 
