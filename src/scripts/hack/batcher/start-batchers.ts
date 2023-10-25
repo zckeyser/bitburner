@@ -79,6 +79,7 @@ export async function startBatchers(ns: NS, useHome: boolean, startFresh: boolea
     } else {
       ns.print(`Found running batcher process: ${JSON.stringify(runningBatcherProcess)}, skipping`)
     }
+  }
 }
 
 function isHackable(ns: NS, server: Server, player: Player) {

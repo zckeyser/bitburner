@@ -70,6 +70,7 @@ export async function developProductsForDivision(ns: NS, divisionName: string, m
         while(division.products.includes(productName)) {
             productName = `${baseProductName} (${i})`
             i++;
+            await ns.sleep(100);
         }
         const devCost = Math.min(maxDevCost, Math.floor(corporation.funds * DevCostPercentOfFunds));
         ns.print(`Making product ${productName} in division ${divisionName} and city ${cityName}`);
@@ -87,5 +88,8 @@ export async function developProductsForDivision(ns: NS, divisionName: string, m
         if(ns.corporation.hasResearched(divisionName, "Market-TA.II")) {
             ns.corporation.setProductMarketTA2(divisionName, productName, true);
         }
+
+        // just-in-case
+        await ns.sleep(1000);
     }
 }

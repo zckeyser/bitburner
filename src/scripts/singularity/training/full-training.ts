@@ -28,7 +28,8 @@ export async function trainEverything(ns:  NS, statThreshold: number, focus?: bo
             statThreshold: statThreshold,
             focus: focus,
             maxCycles: 1,
-            timetoTrainStat: TrainingTimePerStat
+            timetoTrainStat: TrainingTimePerStat,
+            skipCrime: true
         });
     }
 }
