@@ -9,27 +9,33 @@ export function autocomplete(data: AutocompleteData, args: any): string[] {
 
 
 export async function main(ns: NS) {
-    let logger = new TermLogger(ns);
+    const logger = new TermLogger(ns);
     const target = String(ns.args[0]);
     if(!target) {
         logger.err("Must provide target argument");
         return;
     }
-    const findResult = findPath(ns, target);
-    ns.print(`Find result against target ${target}: ${JSON.stringify(findResult)}`)
-
-    if(!findResult.foundTarget) {
-        logger.err(`Target ${target} was not found on the network`);
-        return;
-    }
-
-    chainConnect(ns, findResult.path);
-    logger.info(`Connected to ${target}`);
+    
+    connectToTarget(ns, target);
 }
 
 interface FindResult {
     foundTarget: boolean,
     path: string[]
+}
+
+export function connectToTarget(ns: NS, target: string) {
+  const logger = new TermLogger(ns);
+  const findResult = findPath(ns, target);
+  ns.print(`Find result against target ${target}: ${JSON.stringify(findResult)}`)
+
+  if(!findResult.foundTarget) {
+      logger.err(`Target ${target} was not found on the network`);
+      return;
+  }
+
+  chainConnect(ns, findResult.path);
+  logger.info(`Connected to ${target}`);
 }
 
 /**

@@ -642,11 +642,11 @@ solvers["Compression I: RLE Compression"] = (data) => {
  * @param {string[]} data 
  * @returns 
  */
-solvers["Encryption II: Vigenère Cipher"] = (data) => {
+solvers["Encryption II: Vigenère Cipher"] = (data: string[]) => {
     const [plaintext, keyword] = data;
     let keywordIndex = 0;
 
-    return plaintext.split('').map((c) => {
+    return plaintext.split('').map((c: string) => {
         const offset = keyword.charCodeAt(keywordIndex) - AsciiUppercaseOffset;
         const charCode = c.charCodeAt(0);
         // skip spaces
