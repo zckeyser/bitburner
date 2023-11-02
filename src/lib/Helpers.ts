@@ -18,12 +18,10 @@ const ReadText = {
 
 const DownloadFiles = {
     async getFileToHome(ns: NS, source: string, dest: string) {
-        const logger = new TermLogger(ns);
-
-        logger.info(`Downloading ${source.white()} -> ${dest.white()}`);
+        ns.print(`Downloading ${source.white()} -> ${dest.white()}`);
 
         if (!(await ns.wget(source, dest, Home))) {
-            logger.err(`\tFailed retrieving ${source.white()} -> ${dest.white()}`);
+            ns.print(`\tFailed retrieving ${source.white()} -> ${dest.white()}`);
         }
     }
 };
@@ -140,9 +138,10 @@ class RepoInit {
             repoSettings.manifestPath
         );
 
-        this.logger.info(`Contents of manifest:`);
-        this.logger.info(`\t${files.join("\n")}`);
+        this.ns.print(`Contents of manifest:`);
+        this.ns.print(`\t${files.join("\n")}`);
 
+        this.logger.info(`Downloading files...`);
         for (let file of files) {
             const pair = RepoInit.getSourceDestPair(file);
 
@@ -273,4 +272,32 @@ String.prototype.default = function () {
     return `${Colors.default}${this}${Colors.default}`;
 };
 
-export { ReadText, TermLogger, RepoInit, DownloadFiles, BasicSecurity };
+declare global {
+    interface Array<T> {
+        count(arr: T[], condition: (item: T) => boolean): number;
+    }
+}
+
+Array.prototype.count = function<T>(arr: T[], condition: (item: T) => boolean) {
+    return arr.filter(condition).length;
+}
+
+function range(size: number, startAt: number = 0, step: number = 1): number[] {
+    return [...Array(size).keys()].map(i => i * step + startAt);
+}
+
+function formatNumber(n: number): string {
+    const suffixes = ['k', 'm', 'b', 't', 'q', 'Q'];
+    let suffix = '';
+    let i = 0;
+    while(n >= 1000 && i < suffixes.length) {
+        n /= 1000;
+        suffix = suffixes[i];
+        i++
+    }
+    return `${n}${suffix}`;
+}
+
+// TODO: formatBytes
+
+export { ReadText, TermLogger, RepoInit, DownloadFiles, BasicSecurity, range, formatNumber };

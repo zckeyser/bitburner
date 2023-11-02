@@ -2,23 +2,25 @@ import { NS } from "Bitburner";
 import { getBatch, prepareServerForBatching } from "/lib/batch";
 import { getHackThreads } from "/lib/hacking";
 import { TermLogger } from "/lib/Helpers";
+import { DefaultMaxBatchThreads } from "/lib/Constants";
 
 // 10 minutes
 const PrepareInterval = 10 * 60 * 1000;
 
 /** @param ns BitBurner API */
 export async function main(ns: NS) {
-    const scriptFlags = ns.flags([["target", ""]]);
+    const scriptFlags = ns.flags([["target", ""], ["maxThreads", DefaultMaxBatchThreads]]);
     const target = String(scriptFlags.target);
+    const maxBatchThreads = Number(scriptFlags.maxThreads);
     if (!target) {
       throw new Error(`batcher.js requires a target argument via the --target flag, e.g. 'run batcher.js --target foodnstuff'`)
     }
     const currentHost = ns.getHostname();
     const cores = ns.getServer(currentHost).cpuCores;
 
-    await prepareServerForBatching(ns, target, cores);
+    await prepareServerForBatching(ns, target, cores, maxBatchThreads);
 
-    await runBatching(ns, target, cores);
+    await runBatching(ns, target, cores, maxBatchThreads);
 }
 
 /**
@@ -30,8 +32,9 @@ export async function main(ns: NS) {
  * @param ns 
  * @param target 
  * @param cores 
+ * @param maxBatchThreads maximum threads to use for a batch, regardless of 
  */
-export async function runBatching(ns: NS, target: string, cores: number) {
+export async function runBatching(ns: NS, target: string, cores: number, maxBatchThreads: number) {
     const logger = new TermLogger(ns);
     let serverLastPreparedTime = Date.now();
     const hostname = ns.getHostname();
@@ -39,7 +42,7 @@ export async function runBatching(ns: NS, target: string, cores: number) {
         if(Date.now() - serverLastPreparedTime >= PrepareInterval) {
             // periodically re-run the prepare script in case there's any drift
             // with imperfect offsets causing the server to not sit at max money/min sec as it should for batching.
-            await prepareServerForBatching(ns, target, cores);
+            await prepareServerForBatching(ns, target, cores, maxBatchThreads);
             serverLastPreparedTime = Date.now();
         }
         const host = ns.getServer(hostname);
@@ -51,11 +54,11 @@ export async function runBatching(ns: NS, target: string, cores: number) {
             return;
         }
 
-        const hackThreads = getHackThreads(ns, host, targetServer, player, availableRam);
+        const hackThreads = getHackThreads(ns, host, targetServer, player, availableRam, maxBatchThreads);
 
         if(!hackThreads) {
             ns.print(`Not enough RAM to run a batch. Max hack threads w/batching was ${hackThreads}.`.yellow());
-            await ns.sleep(10000);
+            await prepareServerForBatching(ns, target, cores, maxBatchThreads);
             continue;
         }
         const batch = getBatch(ns, host, targetServer, player, hackThreads);

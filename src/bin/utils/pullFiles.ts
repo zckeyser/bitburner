@@ -7,6 +7,7 @@ export async function main(ns: NS) {
     const initRepo = new RepoInit(ns, logger);
 
     await initRepo.downloadAllFiles();
+    logger.info(`Bootstrapping servers...`)
     for(const server of ns.getPurchasedServers()) {
         bootstrapServer(ns, server);
     }

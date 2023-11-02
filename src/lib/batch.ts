@@ -1,5 +1,5 @@
 import { NS, Player, Server } from "Bitburner";
-import { GrowScriptLocation, HackScriptLocation, InitScriptLocation, SecurityDecreaseForWeaken, SecurityIncreaseForHack, WeakenScriptLocation } from "lib/Constants";
+import { GrowScriptLocation, HackScriptLocation, InitScriptLocation, DefaultMaxBatchThreads, SecurityDecreaseForWeaken, SecurityIncreaseForHack, WeakenScriptLocation } from "lib/Constants";
 import { getGrowthThreads } from "lib/growth";
 
 const DelayBetweenSteps = 100;
@@ -46,7 +46,7 @@ export function getBatch(ns: NS, host: Server, target: Server, player: Player, h
         script: WeakenScriptLocation,
         threads: batchThreads.weakenForGrow,
         runtime: timeToWeaken
-    }
+    };
     const batch = [
         hack,
         weakenForHack,
@@ -59,9 +59,6 @@ export function getBatch(ns: NS, host: Server, target: Server, player: Player, h
 }
 
 export function getBatchThreads(ns: NS, host: Server, target: Server, player: Player, hackThreads: number) {
-    const secIncreaseForHack = SecurityIncreaseForHack * hackThreads;
-    const moneyStolenByHack = ns.hackAnalyze(target.hostname) * hackThreads;
-
     if(!target.moneyMax) {
         ns.print(`WARNING: moneyMax for target ${target.hostname} is ${target.moneyMax}`.yellow())
         return {
@@ -72,9 +69,12 @@ export function getBatchThreads(ns: NS, host: Server, target: Server, player: Pl
         };
     }
 
-    // const bitNodeMultipliers = ns.getBitNodeMultipliers();
+    const bitNodeMultipliers = ns.getBitNodeMultipliers();
 
-    const weakenSecDecrease = SecurityDecreaseForWeaken;
+    const secIncreaseForHack = SecurityIncreaseForHack * hackThreads;
+    const moneyStolenByHack = ns.hackAnalyze(target.hostname) * hackThreads * bitNodeMultipliers.ScriptHackMoney;
+
+    const weakenSecDecrease = SecurityDecreaseForWeaken * bitNodeMultipliers.ServerWeakenRate;
     const moneyAfterHack = target.moneyMax - moneyStolenByHack;
 
     const weakenForHackThreads = Math.ceil(secIncreaseForHack / weakenSecDecrease);
@@ -126,7 +126,8 @@ function getBatchWithDelays(batch: ScriptRunSpec[]): ScriptRunSpec[] {
     return delayedScripts;
 }
 
-export async function prepareServerForBatching(ns: NS, target: string, cores: number) {
+
+export async function prepareServerForBatching(ns: NS, target: string, cores: number, maxBatchThreads: number) {
     while(true) {
         const host = ns.getServer(ns.getHostname());
         const player = ns.getPlayer();
@@ -153,7 +154,7 @@ export async function prepareServerForBatching(ns: NS, target: string, cores: nu
         } else if (hackDifficulty > (server?.minDifficulty || 100)) {
             let amountToReduce = hackDifficulty - minDifficulty;
             let reductionPerCall = .05;
-            const maxThreads = Math.floor(availableRam / ns.getScriptRam(WeakenScriptLocation));
+            const maxThreads = getMaxThreads(ns, WeakenScriptLocation, availableRam, maxBatchThreads);
             let threads = Math.min(maxThreads, Math.ceil(amountToReduce / reductionPerCall) * 2);
             scriptsToRun.push({
                 script: WeakenScriptLocation,
@@ -162,7 +163,7 @@ export async function prepareServerForBatching(ns: NS, target: string, cores: nu
             })
         } else if (moneyAvailable < moneyMax) {
             // TODO: abstract grow w/offset?
-            const maxGrowthThreads = getMaxThreads(ns, GrowScriptLocation, availableRam);
+            const maxGrowthThreads = getMaxThreads(ns, GrowScriptLocation, availableRam, maxBatchThreads);
             // grow
             const grow: ScriptRunSpec = {
                 script: GrowScriptLocation,
@@ -218,15 +219,17 @@ export function serverIsReadyForBatches(server: Server): boolean {
     return server.moneyAvailable === server.moneyMax && server.hackDifficulty === server.minDifficulty;
 }
 
+
 /**
  * @param ns BitBurner API
  * @param script script to run
  * @param availableRam
+ * @param maxBatchThreads cap on the maximum number of threads that can be used, regardless of RAM available
  * @return the maximum number of threads that can be run to use the script in question. This number could be <0 if there is insufficient RAM.
  */
-function getMaxThreads(ns: NS, script: string, availableRam: number): number {
+function getMaxThreads(ns: NS, script: string, availableRam: number, maxBatchThreads: number): number {
     let scriptRam = ns.getScriptRam(script);
     let maxThreads = Math.floor(availableRam / scriptRam);
     ns.print(`Comparing available ${availableRam}GB to scriptRam ${scriptRam}GB for script ${script}, got ${maxThreads} max threads`);
-    return maxThreads;
+    return Math.min(maxBatchThreads, maxThreads);
 }

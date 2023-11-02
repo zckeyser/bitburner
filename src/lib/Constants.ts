@@ -452,6 +452,12 @@ export const HackScriptLocation = `${ActionScriptsDirectory}hack.js`;
 export const InitScriptLocation = `${ActionScriptsDirectory}init.js`;
 
 export const SecurityIncreaseForHack = 0.002;
+export const SecurityIncreaseForGrow = 0.004;
 export const SecurityDecreaseForWeaken = 0.05;
+
+export const DefaultMaxBatchThreads = 512;
+export const DefaultMinServerMoneyPercent = 0.3;
+export const ActionScriptRamUsage = 1.75;
+export const DefaultRequiredBatchRam = DefaultMaxBatchThreads * ActionScriptRamUsage;
 
 export const UtilServerName = `util-serv`;

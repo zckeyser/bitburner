@@ -3,6 +3,11 @@ import { TermLogger } from "/lib/Helpers";
 import { scanNetwork } from "/lib/servers/scan-servers";
 
 
+const ConnectHistoryFile = "data/connect-history.txt";
+const ConnectToPreviousPattern = "-(\d*)"
+const MaxHistorySize = 100;
+
+
 export function autocomplete(data: AutocompleteData, args: any): string[] {
   return data.servers;
 }
@@ -10,9 +15,20 @@ export function autocomplete(data: AutocompleteData, args: any): string[] {
 
 export async function main(ns: NS) {
     const logger = new TermLogger(ns);
-    const target = String(ns.args[0]);
+    const scriptFlags = ns.flags([["target", ""], ["help", false]])
+    const target = resolveTarget(ns, String(scriptFlags.target));
+
+    if(scriptFlags.help) {
+        logger.log(`
+        USAGE: bin/utils/connect.js --target foo
+        \tConnect to previous target using "-" as the argument
+        \tConnect up to 100 targets previously using "-n" where n is the number of targets to search backwards
+        `)
+        return;
+    }
+
     if(!target) {
-        logger.err("Must provide target argument");
+        logger.err("Must provide target argument via --target flag");
         return;
     }
     
@@ -26,6 +42,9 @@ interface FindResult {
 
 export function connectToTarget(ns: NS, target: string) {
   const logger = new TermLogger(ns);
+
+  ns.print(`Connecting to target ${target}`);
+
   const findResult = findPath(ns, target);
   ns.print(`Find result against target ${target}: ${JSON.stringify(findResult)}`)
 
@@ -84,125 +103,44 @@ export function findPath(ns: NS, target: string): FindResult {
  * @param ns BitBurner API
  * @param path servers to connect to, in order
  */
-export function chainConnect(ns: NS, path: string[]) {
+export function chainConnect(ns: NS, path: string[]) { 
+    logToHistory(ns, path.slice(-1)[0]);
     path.forEach(ns.singularity.connect);
 }
 
-/**
- * sample network map for reference
- * export const ServerMap = {
-  "n00dles": {},
-  "foodnstuff": {
-    "nectar-net": {
-      "phantasy": {
-        "computek": {
-          "I.I.I.I": {
-            "alpha-ent": {}
-          }
-        },
-        "crush-fitness": {
-          "summit-uni": {
-            "aevum-police": {}
-          }
-        }
+function resolveTarget(ns: NS, target: string): string {
+  if(target.startsWith("-")) {
+    ns.print(`Connecting to historical target`);
+    if(ns.fileExists(ConnectHistoryFile)) {
+      const history: string[] = JSON.parse(ns.read(ConnectHistoryFile))
+      
+      if(history.length === 0) {
+        throw("Cannot connect to previous (-) because the connection history is empty");
       }
+      
+      return history[0];
+    } else {
+      throw Error("Cannot connect to previous (-) because there is no connection history");
     }
-  },
-  "sigma-cosmetics": {
-    "CSEC": {}
-  },
-  "joesguns": {},
-  "hong-fang-tea": {
-    "max-hardware": {}
-  },
-  "harakiri-sushi": {
-    "zer0": {
-      "neo-net": {
-        "netlink": {
-          "zb-institute": {}
-        }
-      },
-      "silver-helix": {},
-      "omega-net": {
-        "the-hub": {
-          "catalyst": {
-            "lexo-corp": {
-              "global-pharm": {
-                "omnia": {}
-              },
-              "snap-fitness": {
-                "deltaone": {
-                  "univ-energy": {}
-                },
-                "unitalife": {
-                  "defcomm": {},
-                  "icarus": {
-                    "infocomm": {},
-                    "taiyang-digital": {
-                      "titan-labs": {
-                        "fulcrumtech": {}
-                      },
-                      "microdyne": {
-                        "stormtech": {
-                          "omnitek": {
-                            "nwo": {
-                              "fulcrumassets": {}
-                            },
-                            "powerhouse-fitness": {
-                              "ecorp": {},
-                              "megacorp": {}
-                            }
-                          }
-                        },
-                        "helios": {}
-                      }
-                    }
-                  },
-                  "solaris": {
-                    "nova-med": {
-                      "applied-energetics": {
-                        "vitalife": {
-                          "4sigma": {},
-                          "kuai-gong": {
-                            "b-and-a": {
-                              "The-Cave": {
-                                "w0r1d_d43m0n": {}
-                              }
-                            },
-                            "blade": {}
-                          },
-                          ".": {
-                            "clarkinc": {}
-                          }
-                        }
-                      },
-                      "run4theh111z": {}
-                    }
-                  },
-                  "zeus-med": {
-                    "zb-def": {}
-                  }
-                }
-              }
-            },
-            "millenium-fitness": {
-              "aerocorp": {}
-            }
-          }
-        },
-        "johnson-ortho": {
-          "rothman-uni": {}
-        },
-        "avmnite-02h": {
-          "syscore": {
-            "rho-construction": {
-              "galactic-cyber": {}
-            }
-          }
-        }
-      }
+  }
+
+  return target;
+}
+
+function logToHistory(ns: NS, server: string) {
+  let history: string[] = [];
+  if(ns.fileExists(ConnectHistoryFile)) {
+    history = JSON.parse(ns.read(ConnectHistoryFile));
+    if(history.length === MaxHistorySize) {
+      history.pop()
+      history.unshift()
     }
-  },
-  "iron-gym": {}
-};
- */
+    // writing is append-based, so clear the file first if it exists
+    
+    ns.rm(ConnectHistoryFile);
+  } else {
+    history = [server];
+  }
+
+  ns.write(ConnectHistoryFile, JSON.stringify(history));
+}
