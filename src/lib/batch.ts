@@ -92,6 +92,12 @@ export function getBatchThreads(ns: NS, host: Server, target: Server, player: Pl
     }
 }
 
+export function getBatchSize(ns: NS, host: Server, target: Server, player: Player, hackThreads: number) {
+    const batchThreads = getBatchThreads(ns, host, target, player, hackThreads);
+
+    return batchThreads.grow + batchThreads.hack + batchThreads.weakenForGrow + batchThreads.weakenForHack;
+}
+
 export function getBatchRamUsage(ns: NS, batch: ScriptRunSpec[]) {
     return batch.reduce((acc, next) => acc + next.threads * ns.getScriptRam(next.script), 0);
 }

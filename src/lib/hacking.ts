@@ -1,6 +1,6 @@
 import { NS, Player, Server } from "Bitburner";
-import { getBatch, getBatchRamUsage } from "lib/batch";
-import { DefaultMaxBatchThreads, DefaultMinServerMoneyPercent } from "./Constants";
+import { getBatch, getBatchRamUsage } from "/lib/batch";
+import { DefaultMaxBatchThreads, DefaultMinServerMoneyPercent } from "/lib/Constants";
 
 /**
  * Gets the number of hack threads to be used for a batch,

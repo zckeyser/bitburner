@@ -457,6 +457,8 @@ export const SecurityDecreaseForWeaken = 0.05;
 
 export const DefaultMaxBatchThreads = 512;
 export const DefaultMinServerMoneyPercent = 0.3;
+// min RAM we want available to run a batcher on a ohst
+export const MinBatcherRam = 256;
 export const ActionScriptRamUsage = 1.75;
 export const DefaultRequiredBatchRam = DefaultMaxBatchThreads * ActionScriptRamUsage;
 
