@@ -4,8 +4,9 @@ const GangScriptDirectory = "scripts/gangs"
 const PersistentGangScripts = [
     `${GangScriptDirectory}/buy-equipment.js`,
     `${GangScriptDirectory}/recruit-members.js`,
-    `${GangScriptDirectory}/manage-gang-jobs.js`
-]
+    `${GangScriptDirectory}/manage-gang-jobs.js`,
+    `${GangScriptDirectory}/ascend-members.js`
+];
 
 
 export async function main(ns: NS) {

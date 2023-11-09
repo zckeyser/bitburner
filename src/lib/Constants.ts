@@ -437,6 +437,8 @@ export type AugmentName =
     | "BLADE-51b Tesla Armor: IPU Upgrade"
     | "The Blade's Simulacrum";
 
+export type JSONValue = string|boolean|number|object|JSONValue[];
+
 // TODO: segregate by region
 export const Gyms = [
     "powerhouse gym"
@@ -451,15 +453,26 @@ export const GrowScriptLocation = `${ActionScriptsDirectory}grow.js`;
 export const HackScriptLocation = `${ActionScriptsDirectory}hack.js`;
 export const InitScriptLocation = `${ActionScriptsDirectory}init.js`;
 
+export const ConfigFile = `data/config.txt`;
+
 export const SecurityIncreaseForHack = 0.002;
 export const SecurityIncreaseForGrow = 0.004;
 export const SecurityDecreaseForWeaken = 0.05;
 
 export const DefaultMaxBatchThreads = 512;
 export const DefaultMinServerMoneyPercent = 0.3;
-// min RAM we want available to run a batcher on a ohst
 export const MinBatcherRam = 256;
 export const ActionScriptRamUsage = 1.75;
 export const DefaultRequiredBatchRam = DefaultMaxBatchThreads * ActionScriptRamUsage;
+
+// Gang constants
+export const GangCycleLength = 5000;
+// constants for various thresholds to do diff jobs
+export const BaseInitialTrainingThreshold = 100;
+export const MaxInitialTrainingThreshold = 1000;
+export const TraffickArmsThreshold = 200;
+export const WantedPenaltyThreshold = .95;
+export const VigilanteStatThreshold = 100;
+
 
 export const UtilServerName = `util-serv`;

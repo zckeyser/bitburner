@@ -1,4 +1,5 @@
 import { NS } from "Bitburner";
+import { GangCycleLength } from "/lib/Constants";
 
 export async function main(ns: NS) {
     await recruitGangMembers(ns);
@@ -19,7 +20,7 @@ export async function recruitGangMembers(ns: NS) {
             ns.gang.setMemberTask(name, "Train Combat");
         }
 
-        await ns.sleep(5000);
+        await ns.sleep(GangCycleLength);
     }
 }
 

@@ -10,9 +10,8 @@ export async function main(ns: NS) {
 
 export async function buyEquipment(ns: NS) {
     while(true) {
-        const equipmentList = ns.gang.getEquipmentNames().filter(equipmentName => DesiredEquipmentTypes.includes(ns.gang.getEquipmentType(equipmentName)));
+        const equipmentList = getCombatUpgrades(ns);
         const equipCosts = equipmentList.map(equipmentName => [equipmentName, ns.gang.getEquipmentCost(equipmentName)]);
-
         // entries are [equipmentName, equipmentCost], so sort by second item
         // because we want to buy the cheapest upgrades first
         const sortedEquipCosts = equipCosts.sort((a, b) => (a[1] as number) - (b[1] as number));
@@ -41,5 +40,19 @@ export async function buyEquipment(ns: NS) {
         ns.print(`Completed full equipment cycle, sleeping for 1m and checking again.`);
         await ns.sleep(60000);
     }
-    
+}
+
+
+export function getCombatUpgrades(ns: NS): string[] {
+    return ns.gang.getEquipmentNames().filter(equipName => isCombatEquipment(ns, equipName));
+}
+
+
+function isCombatEquipment(ns: NS, equipName: string): boolean {
+    const equipStats = ns.gang.getEquipmentStats(equipName);
+    const agiBonus = (equipStats.agi ?? 0);
+    const defBonus = (equipStats.def ?? 0);
+    const dexBonus = (equipStats.dex ?? 0);
+    const strBonus = (equipStats.str ?? 0);
+    return agiBonus > 0 || defBonus > 0 || dexBonus > 0 || strBonus > 0;
 }
