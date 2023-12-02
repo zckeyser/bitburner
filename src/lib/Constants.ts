@@ -474,5 +474,20 @@ export const TraffickArmsThreshold = 200;
 export const WantedPenaltyThreshold = .95;
 export const VigilanteStatThreshold = 100;
 
+// int stats
+export const IntelligenceCrimeWeight = 0.025; // Weight for how much int affects crime success rates
+export const IntelligenceInfiltrationWeight = 0.1; // Weight for how much int affects infiltration success rates
+export const IntelligenceCrimeBaseExpGain = 0.05;
+export const IntelligenceProgramBaseExpGain = 0.1; // Program required hack level divided by this to determine int exp gain
+export const IntelligenceGraftBaseExpGain = 0.05;
+export const IntelligenceTerminalHackBaseExpGain = 200; // Hacking exp divided by this to determine int exp gain
+export const IntelligenceSingFnBaseExpGain = 1.5;
+export const IntelligenceClassBaseExpGain = 0.01;
+
+/** Max level for any skill, assuming no multipliers. Determined by max numerical value in javascript for experience
+ * and the skill level formula in Player.js. Note that all this means it that when experience hits MAX_INT, then
+ * the player will have this level assuming no multipliers. Multipliers can cause skills to go above this.
+ */
+export const MaxSkillLevel = 975
 
 export const UtilServerName = `util-serv`;

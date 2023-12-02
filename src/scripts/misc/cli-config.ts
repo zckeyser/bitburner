@@ -10,10 +10,11 @@ export async function main(ns: NS) {
     const target = ns.args[1] as string;
     
     if(action === "set") {
-        if(ns.args.length < 3) {
-            ns.tprint(`Set action requires a value argument.\n USAGE: run scripts/misc/cli-config.js set foo.bar baz`.red());
+        if(ns.args.length < 4) {
+            ns.tprint(`Set action requires a value and a type argument.\n USAGE: run scripts/misc/cli-config.js set foo.bar baz`.red());
             return;
         }
+        const value = ns.args[2];
     } else if (action === "get") {
         try {
             ns.tprint(getConfigValue(ns, target));
